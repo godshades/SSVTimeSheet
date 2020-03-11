@@ -3,7 +3,9 @@
     <div id="nav">
       <router-link to="/">Home</router-link> |
       <router-link to="/sample-api">Sample API</router-link> |
-      <router-link to="/about">About</router-link>
+      <router-link to="/about">About</router-link> |
+      <router-link to="regist-time">Đăng ký thời gian</router-link>
+
     </div>
     <router-view/>
   </div>

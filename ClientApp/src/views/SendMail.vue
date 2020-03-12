@@ -2,7 +2,7 @@
   <div class="send-mail">
     <div class="container" style="text-align:left">
       <div class="py-5 text-center">
-        <img v-bind:src="img_logo" style="width:50px" />
+        <img src="@/assets/logo saishunkan.jpg" style="width:60px" />
         <h4 class="mb-3">Mẫu gửi báo cáo hằng ngày</h4>
       </div>
       <div class="row">
@@ -15,16 +15,11 @@
         </div>
         <div class="col-md-6 mb-3">
           <label for="firstName">Tên :</label>
-          <div class="input-group">
-            <div class="input-group-prepend">
-              <span class="input-group-text"></span>
-            </div>
-            <input type="text" class="form-control" v-model="usersname" />
-          </div>
+          <input type="text" class="form-control" v-model="usersname" />
         </div>
         <div class="col-md-6 mb-3">
           <label for="lastName">Địa chỉ mail :</label>
-          <input type="text" class="form-control" v-model="mail" readonly />
+          <input type="text" class="form-control" v-model="mail" />
         </div>
         <div class="col-md-12 mb-3">
           <label for="username">Mail người nhận :</label>
@@ -32,7 +27,7 @@
         </div>
         <div class="col-md-12 mb-3">
           <label for="username">Mật khẩu - bảo mật cao nhé :))</label>
-          <input type="password" class="form-control"/>
+          <input type="password" class="form-control" v-model="password" />
         </div>
         <div class="col-md-12 mb-3">
           <label for="email">Nội dung công việc hôm nay :</label>
@@ -41,9 +36,9 @@
         <div class="col-md-12 mb-3">
           <label for="address">
             Tiến độ công việc
-            <span class="text-muted">(Task-Percent)</span> :
+            <span class="text-muted">(VD: 1 Test 50%)</span> :
           </label>
-          <input type="text" class="form-control" v-model="task" />
+          <textarea class="form-control" aria-label="With textarea" v-model="task"></textarea>
         </div>
         <div class="col-md-12 mb-3">
           <label for="username">Vấn đề phát sinh :</label>
@@ -69,9 +64,9 @@
     data() {
       return {
         errors: [],
-        img_logo: 'https://timviec365.vn/pictures/2019/11/27/avatar185497.jpg',
         usersname: '',
         mail: '',
+        password: '',
         mailsender: '',
         content: '',
         task: '',
@@ -87,10 +82,16 @@
           this.errors.push('Tên chưa nhập ');
         }
         if (!this.mail) {
-          this.errors.push('Mail chưa nhập ');
+          this.errors.push('Mail chưa có thông tin ');
+        }
+        if (!this.password) {
+          this.errors.push('Chưa có pass word ');
         }
         if (!this.mailsender) {
           this.errors.push('Mail người nhận chưa nhập ');
+        }
+        if (this.mail && this.mailsender && this.mail == this.mailsender) {
+          this.errors.push('Mail người gửi và người nhận phải khác nhau')
         }
         if (!this.content) {
           this.errors.push('Nội dung chưa nhập ');
@@ -101,31 +102,36 @@
         if (!this.contentTm) {
           this.errors.push('Kế hoạch tiếp theo chưa nhập ');
         }
-        if (this.usersname && this.mail && this.mailsender && this.content && this.task && this.contentTm) {
+        if (this.usersname && this.mail && this.password && this.mailsender && this.content && this.task && this.contentTm && this.mail != this.mailsender) {
           var users = JSON.stringify({
-          Name: this.usersname,
-          Mail: this.mail,
-          Mailsender: this.mailsender,
-          Content: this.content,
-          Percent: this.task,
-          Err: this.err,
-          Tmcontent: this.contentTm
-        });
-        axios({
-          method: 'post',
-          url: '/sendMail/sendDataToMail',
-          data: users,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-          .then(function (response) {
-            console.log(response);
-          })
-          .catch(function (error) {
-            console.log(error);
+            Name: this.usersname,
+            Mail: this.mail,
+            Pass: this.password,
+            Mailsender: this.mailsender,
+            Content: this.content,
+            Percent: this.task,
+            Err: this.err,
+            Tmcontent: this.contentTm
           });
-        } 
+          axios({
+            method: 'post',
+            url: '/sendMail/sendDataToMail',
+            data: users,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+            .then(function (response) {
+              if (response.data == true) {
+                alert('Gửi mail thành công')
+              } else {
+                alert('Gửi mail thất bại, kiểm tra lại dữ liệu')               
+              }
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+        }
       }
     }
   }

@@ -18,7 +18,7 @@
         @dateClick="handleDateClick"
       />
     </b-container>
-    <ModalRestTime :data="getDateClick"></ModalRestTime>
+    <ModalRestTime :dataDate="getDateClick"></ModalRestTime>
   </div>
 </template>
 

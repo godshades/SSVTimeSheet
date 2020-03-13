@@ -1,6 +1,6 @@
 ﻿<template>
   <div class="send-mail">
-    <div class="container" style="text-align:left">
+    <div class="container" style="text-align:left;background:white">
       <div class="py-5 text-center">
         <img src="@/assets/logo saishunkan.jpg" style="width:60px" />
         <h4 class="mb-3">Mẫu gửi báo cáo hằng ngày</h4>

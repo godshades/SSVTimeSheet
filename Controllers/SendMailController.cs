@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,42 +14,51 @@ namespace SSVTimeSheet.Controllers
     public class SendMailController : Controller
     {
         [HttpPost]
-        public async Task<IActionResult> SendDataToMail([FromBody]ReportEmployee report)
+        [Route("/sendMail/sendDataToMail")]
+        public bool SendDataToMail([FromBody]ReportEmployee report)
         {
+            string[] task_p = report.Percent.Split('\n');
+
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("Dear A.Hùng@@");
             sb.Append("Báo cáo công việc trong ngày hôm nay@@");
             sb.Append("1) Nội dung công việc thực hiện ngày hôm nay:@");
-            sb.Append("   - " + report.Content);
+            sb.Append("   - " + report.Content+"@");
             sb.Append("2) Mức độ hoàn thành công việc (%):@");
-            sb.Append("   - " + report.Percent);
+            for (int i = 0; i < task_p.Length; i++)
+            {
+                sb.Append("   - " + task_p[i] + "@");
+            }          
             sb.Append("3) Vấn đề phát sinh:@");
-            sb.Append("   - " + report.Err);
+            if(!String.IsNullOrEmpty(report.Err.Replace(" ", string.Empty)))
+            {
+                sb.Append("   - " + report.Err + "@");
+            }        
             sb.Append("4) Kế hoạch tiếp theo:@");
-            sb.Append("   - " + report.Tmcontent);
-            sb.Append("Nhờ anh xác nhận giúp em. Em xin cảm ơn!");
+            sb.Append("   - " + report.Tmcontent+"@");
+            sb.Append("Xin cảm ơn!");
 
             sb = sb.Replace("@", Environment.NewLine);
 
             try
             {
                 SmtpClient client = new SmtpClient("saisystem.vn", 587);
-                client.EnableSsl = true;
-                client.Credentials = new NetworkCredential("vinhnc@saisystem.vn", "20150601");
 
-                MailMessage message = new MailMessage("vinhnc@saisystem.vn", "quyennq@saisystem.vn");
+                client.EnableSsl = true;
+                client.Credentials = new NetworkCredential(report.Mail, report.Pass);
+
+                MailMessage message = new MailMessage(report.Mail, report.Mailsender);
                 message.Subject = "Báo cáo công việc";
                 message.Body = sb.ToString();
 
                 client.Send(message);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                return false;
             }
 
-            return View();
+            return true;
         }
 
         public class ReportEmployee
@@ -56,6 +66,8 @@ namespace SSVTimeSheet.Controllers
             public string Name { get; set; }
 
             public string Mail { get; set; }
+
+            public string Pass { get; set; }
 
             public string Mailsender { get; set; }
 

@@ -4,8 +4,12 @@
       <!-- Modal Header -->
 
       <div>
-        <b-button class="mr-2" @click="showRegistTime('work-time')">Đăng ký làm thêm</b-button>
-        <b-button @click="showRegistTime('rest-time')">Đăng ký ngày nghỉ</b-button>
+        <b-button
+          variant="outline-success"
+          class="mr-2"
+          @click="showRegistTime('work-time')"
+        >Đăng ký làm thêm</b-button>
+        <b-button variant="outline-success" @click="showRegistTime('rest-time')">Đăng ký ngày nghỉ</b-button>
       </div>
 
       <!-- Modal body -->
@@ -14,11 +18,14 @@
         <div class="ss-title">
           <h2 class="title">Đăng ký làm thêm tại công ty</h2>
         </div>
+        <b-form-group label="Người gửi(dùng tạm thời)">
+          <b-form-input v-model="userSelected"></b-form-input>
+        </b-form-group>
         <b-form-group label="Người nhận">
-          <b-form-select v-model="leadSelected" :options="LeaderSelect" name="LeaderSelect"></b-form-select>
+          <b-form-select v-model="leadSelected" :options="LeaderSelect"></b-form-select>
         </b-form-group>
         <b-form-group label="Phân loại thời gian" label-for="classifyTime">
-          <b-form-select v-model="classifySelected" :options="classifyTime" name="classifyTime"></b-form-select>
+          <b-form-select v-model="classifySelected" :options="classifyTime"></b-form-select>
         </b-form-group>
         <b-form-group label="Thời gian bắt đầu">
           <b-form-timepicker v-model.lazy="startTime" locale="vi" placeholder="Chọn thời gian"></b-form-timepicker>
@@ -33,8 +40,9 @@
           <b-form-input :value="dataDate" disabled></b-form-input>
         </b-form-group>
         <b-form-group label="Ghi chú">
-          <b-form-textarea placeholder="Viết vào đây..." rows="3" max-rows="6"></b-form-textarea>
+          <b-form-textarea v-model="noteTime" placeholder="Viết vào đây..." rows="3" max-rows="6"></b-form-textarea>
         </b-form-group>
+        <b-button @click="sendWorkTime()" pill variant="success" class="ml-auto d-block">Gửi</b-button>
       </div>
 
       <div v-if="currentRegistTime == 'rest-time'">
@@ -42,8 +50,12 @@
           <h2 class="title">Xin nghỉ phép</h2>
         </div>
         <div class="mb-3">
-          <b-button class="mr-3" @click="showRestTime('one-day')">Nghỉ trong ngày</b-button>
-          <b-button @click="showRestTime('many-day')">Nghỉ nhiều ngày</b-button>
+          <b-button
+            variant="outline-success"
+            class="mr-3"
+            @click="showRestTime('one-day')"
+          >Nghỉ trong ngày</b-button>
+          <b-button variant="outline-success" @click="showRestTime('many-day')">Nghỉ nhiều ngày</b-button>
         </div>
         <div v-if="currentRestTime == 'one-day'">
           <b-form-group label="Người nhận">
@@ -64,8 +76,12 @@
           <b-form-group label="Ghi chú">
             <b-form-textarea placeholder="Viết vào đây..." rows="3" max-rows="6"></b-form-textarea>
           </b-form-group>
+          <b-button @click="sendWorkTime()" pill variant="success" class="ml-auto d-block">Gửi</b-button>
         </div>
         <div v-if="currentRestTime == 'many-day'">
+          <b-form-group label="Người nhận">
+          <b-form-select v-model="leadSelected" :options="LeaderSelect"></b-form-select>
+        </b-form-group>
           <b-form-group label="Ngày bắt đầu">
             <b-form-datepicker :value="dataDate" locale="vi" disabled></b-form-datepicker>
           </b-form-group>
@@ -84,11 +100,11 @@
           <b-form-group label="Ghi chú">
             <b-form-textarea placeholder="Viết vào đây..." rows="3" max-rows="6"></b-form-textarea>
           </b-form-group>
+          <b-button pill variant="success" class="ml-auto d-block">Gửi</b-button>
         </div>
       </div>
 
       <!-- Modal footer -->
-      <button class="btn btn-success d-block ml-auto">Gửi</button>
     </b-modal>
   </div>
 </template>
@@ -106,10 +122,10 @@ export default {
 
       LeaderSelect: [
         { value: null, text: 'Chọn', disabled: true },
-        { value: 'Leader1', text: 'Leader1' },
-        { value: 'Leader2', text: 'Leader2' },
-        { value: 'Leader3', text: 'Leader3' },
-        { value: 'Leader4', text: 'Leader4' }
+        { value: 'Lead1', text: 'Leader1' },
+        { value: 'Lead2', text: 'Leader2' },
+        { value: 'Lead3', text: 'Leader3' },
+        { value: 'Lead4', text: 'Leader4' }
       ],
       classifySelected: null,
       classifyTime: [
@@ -123,7 +139,10 @@ export default {
       workTime: '',
       currentRegistTime: 'work-time',
       currentRestTime: 'one-day',
-      endDate: ''
+      endDate: '',
+      restDate: '',
+      noteTime: '',
+      userSelected: '' // dùng tạm thời
     }
   },
 
@@ -133,6 +152,51 @@ export default {
     },
     showRestTime (nameBlock) {
       this.currentRestTime = nameBlock
+    },
+    sendWorkTime () {
+      this.axios({
+        method: 'post',
+        url: '/api/RegistTime/InsertTime',
+        data: {
+          UserId: this.userSelected,
+          LeaderId: this.leadSelected,
+          ClassifyTime: this.classifySelected,
+          StartWorkTime: new Date(this.dataDate + ',' + this.startTime),
+          EndWorkTime: new Date(this.dataDate + ',' + this.endTime),
+          // Khởi tạo ngày tháng rồi cộng 2 chuỗi string ngày với giờ lại
+          WorkTime: this.workTime,
+          StartRestTime: new Date(this.dataDate + ',' + this.startTime),
+          EndRestTime: new Date(this.dataDate + ',' + this.endTime),
+          RestTime: this.workTime,
+          Note: this.noteTime
+        }
+      })
+        .then(res => {
+          console.log(res.data)
+          if (res.data == false) {
+            this.$toastr.error(
+              'Thêm không thành công, vui lòng kiểm tra lại',
+              'Lỗi rồi!'
+            )
+          } else this.$toastr.success('Thêm thành công', 'Ngon lành')
+        })
+        .catch(err => {
+          // console.error(err)
+        })
+    },
+    sendRestDate(){
+      axios({
+        method:'post',
+        url: '/api/RegistTime/InsertTime',
+        data: {
+          UserId: this.userSelected,
+          LeaderId: this.leadSelected,
+          StartRestTime: new Date(this.dataDate),
+          EndRestTime: new Date(this.endDate),
+          RestTime: this.restDate,
+          Note: this.noteTime
+        }
+      })
     }
   },
   computed: {
@@ -149,11 +213,13 @@ export default {
       return this.workTime
     },
     handleRestDate: function () {
-      let restDate = (new Date(this.endDate) - new Date(this.dataDate)) / (1000 * 60 * 60 * 24)
+      this.restDate =
+        (new Date(this.endDate) - new Date(this.dataDate)) /
+        (1000 * 60 * 60 * 24)
       // khởi tạo ngày bắt đầu và ngày kết thúc
       // sau khi trừ cho nhau thì kết quả trả về miliseconds
       // convert sang thành ngày bằng cách chia cho (1000 * 60 * 60 * 24)
-      return restDate
+      return this.restDate
     }
   }
 }

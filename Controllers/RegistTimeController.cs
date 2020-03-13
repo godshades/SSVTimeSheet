@@ -11,17 +11,22 @@ namespace SSVTimeSheet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RegistTimeController : ControllerBase
-    {
-        [HttpGet]
-        public IActionResult Index()
-        {
-            return Index();
-        }
-        public IActionResult workTime()
-        {
-            return workTime();
-        }
+    public class RegistTimeController : Controller
+    {                
+        [HttpPost("InsertTime")]        
+        public JsonResult InsertTime(RegistTime data)
+        {            
+          bool result =  new RegistTimeDao().SaveWorkTime(data);
+            if (result)
+            {
+                return Json(data);
+            }
+            else
+            {
+                return Json(result);
+            }
 
+            
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace SSVTimeSheet.Models
         public DateTime EndRestTime { get; set; }
         public int RestTime { get; set; }
         public string Note { get; set; }
-        public bool Status { get; set; }
+        public bool ? Status { get; set; }
 
 
 

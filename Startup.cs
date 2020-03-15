@@ -5,7 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using SSVTimeSheet.Middleware;
+using SSVTimeSheet.Model;
+using System;
 
 namespace SSVTimeSheet
 {
@@ -28,6 +31,10 @@ namespace SSVTimeSheet
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+
+            services.AddConfiguration<SettingsModel>(Configuration, "MySettings");
+
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -64,6 +71,26 @@ namespace SSVTimeSheet
             {
                 app.UseVueDevelopmentServer();
             }
+
+        }
+    }
+
+    public static class ConfigurationExtension
+    {
+        public static void AddConfiguration<T>(
+            this IServiceCollection services,
+            IConfiguration configuration,
+            string configurationTag = null)
+            where T : class
+        {
+            if (string.IsNullOrEmpty(configurationTag))
+            {
+                configurationTag = typeof(T).Name;
+            }
+
+            var instance = Activator.CreateInstance<T>();
+            new ConfigureFromConfigurationOptions<T>(configuration.GetSection(configurationTag)).Configure(instance);
+            services.AddSingleton(instance);
         }
     }
 }

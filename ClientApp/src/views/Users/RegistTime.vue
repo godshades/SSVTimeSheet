@@ -17,10 +17,16 @@
         }"
         :events="[
           {
-            title: 'su kien',
-            start: '2020-03-01', // a property!
+            title: 'su kien 1',
+            start: '2020-03-15', // a property!
             end: '2020-03-20'
-          }
+          },
+          {
+            title: 'su kien 2',
+            start: '2020-03-17', // a property!
+            end: '2020-03-25'
+          },
+
         ]"
         @dateClick="handleDateClick"
       />
@@ -30,15 +36,15 @@
 </template>
 
 <script>
-import FullCalendar from "@fullcalendar/vue";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import TimeGridPlugin from "@fullcalendar/timegrid";
-import InteractionPlugin from "@fullcalendar/interaction";
-import ListPlugin from "@fullcalendar/list";
-import ModalRestTime from "./ModalRestTime";
+import FullCalendar from '@fullcalendar/vue'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import TimeGridPlugin from '@fullcalendar/timegrid'
+import InteractionPlugin from '@fullcalendar/interaction'
+import ListPlugin from '@fullcalendar/list'
+import ModalRestTime from './ModalRestTime'
 export default {
-  name: "regist-time",
-  data() {
+  name: 'regist-time',
+  data () {
     return {
       calendarPlugins: [
         dayGridPlugin,
@@ -46,23 +52,23 @@ export default {
         InteractionPlugin,
         ListPlugin
       ],
-      getDateClick: ""
-    };
+      getDateClick: ''
+    }
   },
   components: {
     FullCalendar, // make the <FullCalendar> tag available
     ModalRestTime
   },
   methods: {
-    handleDateClick(e) {
-      this.$bvModal.show("register-time");
+    handleDateClick (e) {
+      this.$bvModal.show('register-time')
       // console.log("handleDateClick -> e.dateStr", e.dateStr)
-      this.getDateClick = e.dateStr;
+      this.getDateClick = e.dateStr
       // console.log(this.getDateClick)
     }
   },
   prop: {}
-};
+}
 </script>
 <style lang="scss" scoped>
 @import "~@fullcalendar/core/main.css";

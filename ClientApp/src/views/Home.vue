@@ -1,27 +1,24 @@
 <template>
-  <div class="home">
-    <Login msg="Login"/>
+  <div class="home">    
+    <a href="#/dang-nhap" class="mb-3 btn btn-success">Đăng xuất</a>
+    <regist-time></regist-time>
   </div>
 </template>
 
 <style>
-  body {
-    background: #2f4895; /* fallback for old browsers */
-    background: linear-gradient(to left, #f3eeee, #54a3bd);
-    font-family: "Roboto", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+.home {
+  padding-top: 100px;
+}
 </style>
 
 <script>
 // @ is an alias to /src
-import Login from './Users/Login.vue'
+import RegistTime from './Users/RegistTime.vue'
 
 export default {
   name: 'home',
   components: {
-    Login
+    RegistTime
   }
 }
 </script>

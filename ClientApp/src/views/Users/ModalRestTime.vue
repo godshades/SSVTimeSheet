@@ -313,9 +313,7 @@ export default {
             )
           } else this.$toastr.success('Thêm thành công', 'Ngon lành')
         })
-        .catch(err => {
-          console.log(err.response)
-        })
+        .catch(err => {})
     },
     sendWorkTime () {
       let data = {

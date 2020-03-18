@@ -11,7 +11,7 @@ namespace SSVTimeSheet.Models
     {
         SqlCommand cmd;
         SqlConnection sqlConnect;
-        string conn = "Server=192.168.10.220;Database=TimeSheet;User Id=waosa;Password=sqlSaPass;";
+        private string conn = "Server=192.168.10.220;Database=TimeSheet;User Id=waosa;Password=sqlSaPass;";
 
         public bool SaveWorkTime(RegistTime data)
         {

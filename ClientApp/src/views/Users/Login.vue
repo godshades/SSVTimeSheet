@@ -1,19 +1,27 @@
 <template>
-  <div class="login-page">
-    <div class="form">
-      <form class="login-form">
-        <input type="text" placeholder="Tên đăng nhập" v-model="username" />
-        <input type="password" placeholder="Mật khẩu" v-model="password" />
-        <button type="button" @click="signIn">Đăng nhập</button>
-        <p class="message">Chưa có tài khoản? <a href="#">Đăng kí mới</a></p>
-      </form>
+  <div class="background-login">
+    <div class="login-page">
+      <div class="form">
+        <form class="login-form">
+          <div class="border-input">
+            <input type="text" v-model="userid" required />
+            <div class="input-placeholder">UserId</div>
+          </div>
+          <div class="border-input">
+            <input type="password" v-model="password" required />
+            <div class="input-placeholder">Password</div>
+          </div>
+          <button class="btn-login" type="button" @click="signIn()">
+            Đăng nhập
+          </button>
+          <p class="message">Chưa có tài khoản? <a href="#">Đăng kí mới</a></p>
+        </form>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
-
 export default {
   name: 'login',
   props: {
@@ -21,32 +29,31 @@ export default {
   },
   data () {
     return {
-      username: '',
+      userid: '',
       password: ''
     }
   },
+
   methods: {
-    signIn: function () {
-      const rt = this
-      const us = this.username
-      axios({
+    signIn () {
+      const self = this
+      this.axios({
         method: 'post',
-        url: '/loginUser/loginUserss',
-        params: { username: this.username, pass: this.password },
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        url: 'api/UserLogin/Login',
+        params: { UserId: this.userid, Password: this.password }
       })
         .then(function (response) {
-          if (response.data == true) {
-            rt.$router.push({ name: 'about', params: { username: us } })
+          if (response.data === true) {
+            self.$router.push('/').catch(err => {})
+            this.$toastr.success('Chào mừng bạn đến với Saishunkan System', 'Wellcome')
           } else {
-            alert('Đăng nhập không thành công, vui lòng kiểm tra lại')
+           this.$toastr.error(
+              'Id hoặc mật khẩu không chính xác',
+              'Lỗi rồi!'
+            )
           }
         })
-        .catch(function (error) {
-          console.log(error)
-        })
+        .catch(function (error) {})
     }
   }
 }
@@ -55,7 +62,14 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
-
+.background-login {
+  background: #2f4895; /* fallback for old browsers */
+  background: linear-gradient(to left, #f3eeee, #54a3bd);
+  font-family: "Roboto", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+}
 .login-page {
   width: 360px;
   padding: 8% 0 0;
@@ -76,16 +90,15 @@ export default {
 .form input {
   font-family: "Roboto", sans-serif;
   outline: 0;
-  background: #f2f2f2;
   width: 100%;
   border: 0;
-  margin: 0 0 15px;
-  padding: 15px;
+  border-bottom: 1px solid #80868b;
+  padding: 5px;
   box-sizing: border-box;
   font-size: 14px;
 }
 
-.form button {
+.form .btn-login {
   font-family: "Roboto", sans-serif;
   text-transform: uppercase;
   outline: 0;
@@ -98,9 +111,9 @@ export default {
   cursor: pointer;
 }
 
-.form button:hover,
-.form button:active,
-.form button:focus {
+.form .btn-login:hover,
+.form .btn-login:active,
+.form .btn-login:focus {
   background: #304996;
 }
 
@@ -118,49 +131,42 @@ export default {
 .form .register-form {
   display: none;
 }
-
-.container {
-  position: relative;
-  z-index: 1;
-  max-width: 300px;
-  margin: 0 auto;
-}
-
-.container:before,
-.container:after {
-  content: "";
-  display: block;
-  clear: both;
-}
-
-.container .info {
-  margin: 50px auto;
-  text-align: center;
-}
-
-.container .info h1 {
-  margin: 0 0 15px;
-  padding: 0;
-  font-size: 36px;
-  font-weight: 300;
-  color: #1a1a1a;
-}
-
-.container .info span {
-  color: #4d4d4d;
-  font-size: 12px;
-}
-
-.container .info span a {
-  color: #000000;
-  text-decoration: none;
-}
-
-.container .info span .fa {
-  color: #ef3b3a;
-}
-
 input {
   color: #3b65a1;
+}
+.login-form .border-input {
+  position: relative;
+  margin-bottom: 30px;
+  transition: all 0.3s ease;
+}
+.login-form .border-input::after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  height: 3px;
+  width: 0;
+  background-color: #3b65a1;
+  transition: all 0.3s ease;
+}
+.login-form .border-input:focus-within::after {
+  width: 100%;
+}
+.border-input .input-placeholder {
+  position: absolute;
+  pointer-events: none;
+  color: #80868b;
+  left: 5px;
+  bottom: 5px;
+  transition: all 0.3s ease;
+}
+.login-form input:focus + .input-placeholder,
+.login-form input:valid + .input-placeholder {
+  bottom: 25px;
+  font-size: 12px;
+  color: #3b65a1;
+  font-weight: bold;
 }
 </style>

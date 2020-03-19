@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SSVTimeSheet.Models
 {
@@ -14,11 +8,11 @@ namespace SSVTimeSheet.Models
         SqlCommand cmd;
         SqlConnection sqlConnect;
         private string conn = "Server=192.168.10.220;Database=TimeSheet;User Id=waosa;Password=sqlSaPass;";
-        public bool CheckLogin(string UserId, string Password)
+        public SUser CheckLogin(LoginRequest request)
         {
             sqlConnect = new SqlConnection(conn);
             sqlConnect.Open();
-            SqlCommand cmd = new SqlCommand("SELECT * FROM dbo.SUser WHERE UserId='" + UserId + "' AND Password='" + Password + "'", sqlConnect);
+            cmd = new SqlCommand("SELECT * FROM dbo.SUser WHERE UserId='" + request.UserId + "' AND Password='" + request.Password + "'", sqlConnect);
             SqlDataReader reader = cmd.ExecuteReader();
             SUser s = new SUser();
             try
@@ -38,20 +32,18 @@ namespace SSVTimeSheet.Models
                         s.TelNo = reader["TelNo"].ToString();
                         s.RestDay = reader["RestDay"] == null || reader["RestDay"].ToString() == string.Empty ? 0 : int.Parse(reader["RestDay"].ToString());
                         s.DelFlg = reader["DelFlg"] == null || reader["DelFlg"].ToString() == string.Empty ? false : bool.Parse(reader["DelFlg"].ToString());
-                    }
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    //var key = Encoding.UTF8.GetBytes(AppSettings.)
-                    return true;
+                    }                    
+                    return s;
                 }
                 else
                 {
-                    return false;
+                    return null;
                 }
             }
             catch
             {
 
-                return false;
+                return null;
             }
             finally
             {
@@ -66,6 +58,7 @@ namespace SSVTimeSheet.Models
                 }
             }
 
-        }
+        }       
+        
     }
 }

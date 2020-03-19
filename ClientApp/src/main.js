@@ -1,18 +1,18 @@
-import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import axios from 'axios'
-import VueAxios from 'vue-axios'
-import 'bootstrap/dist/css/bootstrap.css'
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'bootstrap/dist/css/bootstrap.css'
+import Vue from 'vue'
+import VueAxios from 'vue-axios'
+import VueCookies from 'vue-cookies'
 import VueToastr2 from 'vue-toastr-2'
 import 'vue-toastr-2/dist/vue-toastr-2.min.css'
+import App from './App.vue'
+import router from './router'
 window.toastr = require('toastr')
 Vue.use(VueToastr2)
-
+Vue.use(VueCookies)
 Vue.use(VueAxios, axios)
-
 Vue.config.productionTip = false
 // Install BootstrapVue
 Vue.use(BootstrapVue)
@@ -22,3 +22,4 @@ new Vue({
   router,
   render: h => h(App)
 }).$mount('#app')
+

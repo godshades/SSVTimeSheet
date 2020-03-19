@@ -11,6 +11,13 @@
             <input type="password" v-model="password" required />
             <div class="input-placeholder">Password</div>
           </div>
+          <b-form-checkbox
+            class="mb-3"
+            v-model="rememberMe"
+            value="true"
+            unchecked-value="false"
+            >Nhớ mật khẩu</b-form-checkbox
+          >
           <button class="btn-login" type="button" @click="signIn()">
             Đăng nhập
           </button>
@@ -30,30 +37,38 @@ export default {
   data () {
     return {
       userid: '',
-      password: ''
+      password: '',
+      rememberMe: false
     }
   },
 
   methods: {
     signIn () {
-      const self = this
+      let data = {
+        UserId: this.userid,
+        Password: this.password
+      }
       this.axios({
         method: 'post',
         url: 'api/UserLogin/Login',
-        params: { UserId: this.userid, Password: this.password }
+        data: data
       })
-        .then(function (response) {
-          if (response.data === true) {
-            self.$router.push('/').catch(err => {})
-            this.$toastr.success('Chào mừng bạn đến với Saishunkan System', 'Wellcome')
+        .then(res => {
+          console.log('signIn -> res', res.data)
+          if (res.status === 400) {
+            this.$toastr.error('Id hoặc mật khẩu không chính xác', 'Lỗi rồi!')
           } else {
-           this.$toastr.error(
-              'Id hoặc mật khẩu không chính xác',
-              'Lỗi rồi!'
+            this.$toastr.success(
+              'Chào mừng bạn đến với Saishunkan System',
+              'Wellcome'
             )
+            this.$router.push('/').catch(err => {})
+            let token = res.data.token
+            this.$cookie.set('token', token)   
+            console.log("signIn -> cookie", this.$cookie.set('token', token))
           }
         })
-        .catch(function (error) {})
+        .catch(err => {})
     }
   }
 }
@@ -83,7 +98,6 @@ export default {
   max-width: 360px;
   margin: 0 auto 100px;
   padding: 45px;
-  text-align: center;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
 }
 
@@ -105,7 +119,7 @@ export default {
   background: #3b65a1;
   width: 100%;
   border: 0;
-  padding: 15px;
+  padding: 10px;
   color: #ffffff;
   font-size: 14px;
   cursor: pointer;
@@ -121,6 +135,7 @@ export default {
   margin: 15px 0 0;
   color: #b3b3b3;
   font-size: 12px;
+  text-align: center;
 }
 
 .form .message a {
@@ -164,7 +179,7 @@ input {
 }
 .login-form input:focus + .input-placeholder,
 .login-form input:valid + .input-placeholder {
-  bottom: 25px;
+  bottom: 35px;
   font-size: 12px;
   color: #3b65a1;
   font-weight: bold;

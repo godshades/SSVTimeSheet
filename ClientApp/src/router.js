@@ -4,7 +4,8 @@ import Home from './views/Home.vue'
 
 Vue.use(Router)
 
-export default new Router({  
+let router = new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
@@ -15,6 +16,19 @@ export default new Router({
       path: '/dang-nhap',
       name: 'userlogin',
       component: () => import('./views/Users/Login.vue')
-    }    
+    }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  const publicPages = ['/dang-nhap']
+  const authRequired = !publicPages.includes(to.path)
+  console.log('authRequired', authRequired)
+  const loggedIn = Vue.$cookies.get('token')
+  if (authRequired && loggedIn === null) {
+    return next('/dang-nhap')
+  }
+
+  next()
+})
+export default router

@@ -15,19 +15,7 @@
           week: 'Tuần',
           day: 'Ngày'
         }"
-        :events="[
-          {
-            title: 'su kien 1',
-            start: '2020-03-15', // a property!
-            end: '2020-03-20'
-          },
-          {
-            title: 'su kien 2',
-            start: '2020-03-17', // a property!
-            end: '2020-03-25'
-          },
-
-        ]"
+        :events="event"
         @dateClick="handleDateClick"
       />
     </b-container>
@@ -52,7 +40,19 @@ export default {
         InteractionPlugin,
         ListPlugin
       ],
-      getDateClick: ''
+      getDateClick: '',
+      event: [
+        {
+          title: 'su kien 1',
+          start: '2020-03-15', // a property!
+          end: '2020-03-20'
+        },
+        {
+          title: 'su kien 2',
+          start: '2020-03-17', // a property!
+          end: '2020-03-25'
+        }
+      ]
     }
   },
   components: {
@@ -67,7 +67,20 @@ export default {
       // console.log(this.getDateClick)
     }
   },
-  prop: {}
+  created () {
+    let userId = this.$cookies.get('userData').userId
+    console.log('mounted -> userId', userId)
+
+    this.axios({
+      method: 'post',
+      url: '/api/RegistTime/GetTimeUser',
+      params: {
+        userId: userId
+      }
+    }).then(res => {
+      console.log('mounted -> res', res)
+    })
+  }
 }
 </script>
 <style lang="scss" scoped>

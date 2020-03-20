@@ -1,24 +1,47 @@
 <template>
-  <div class="home">    
-    <a href="#/dang-nhap" class="mb-3 btn btn-success">Đăng xuất</a>
+  <div class="home">
+    <div>
+      <b-navbar type="dark" variant="success" class="mb-3">
+        <div class="container">
+          <b-navbar-nav>
+            <b-nav-item href="/">Home</b-nav-item>
+          </b-navbar-nav>
+          <!-- Navbar dropdowns -->
+          <b-navbar-nav>
+            <b-nav-item-dropdown :text="userName" class="ml-auto">
+              <b-dropdown-item href="#">Thông tin của bạn</b-dropdown-item>
+              <b-dropdown-item @click="logOut()">Đăng xuất</b-dropdown-item>
+            </b-nav-item-dropdown>
+          </b-navbar-nav>
+        </div>
+      </b-navbar>
+    </div>
     <regist-time></regist-time>
   </div>
 </template>
 
-<style>
-.home {
-  padding-top: 100px;
-}
-</style>
+<style></style>
 
 <script>
 // @ is an alias to /src
-import RegistTime from './Users/RegistTime.vue'
+import RegistTime from "./Users/RegistTime.vue";
 
 export default {
-  name: 'home',
+  name: "home",
+  data() {
+    return {
+      userName: this.$cookies.get("userData").name
+    };
+  },
   components: {
     RegistTime
+  },
+  methods: {
+    logOut() {
+      this.$cookies.remove("token");
+      this.$cookies.remove("userData");
+      this.$router.push("/dang-nhap");
+    }
   }
-}
+};
 </script>

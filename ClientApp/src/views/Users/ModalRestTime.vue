@@ -25,12 +25,6 @@
         <div class="ss-title">
           <h2 class="title">Đăng ký làm thêm tại công ty</h2>
         </div>
-        <b-form-group label="Người gửi(dùng tạm thời)">
-          <b-form-input
-            v-model="userSelected"
-            :state="validateRequired(userSelected)"
-          ></b-form-input>
-        </b-form-group>
         <div class="row">
           <b-form-group class="col-md-6" label="Người nhận">
             <b-form-select
@@ -57,8 +51,10 @@
               v-model.lazy="startWorkTime"
               :input-class="{
                 'custom-select': true,
-                'is-invalid': !validateRequired(startWorkTime) || handleWorkTime == 0,
-                'is-valid': validateRequired(startWorkTime) && handleWorkTime != 0
+                'is-invalid':
+                  !validateRequired(startWorkTime) || handleWorkTime == 0,
+                'is-valid':
+                  validateRequired(startWorkTime) && handleWorkTime != 0
               }"
               hide-clear-button
               placeholder="Chọn giờ"
@@ -138,8 +134,10 @@
                 v-model.lazy="startRestTime"
                 :input-class="{
                   'custom-select': true,
-                  'is-invalid': !validateRequired(startRestTime) || handleRestTime == 0,
-                  'is-valid': validateRequired(startRestTime) && handleRestTime != 0
+                  'is-invalid':
+                    !validateRequired(startRestTime) || handleRestTime == 0,
+                  'is-valid':
+                    validateRequired(startRestTime) && handleRestTime != 0
                 }"
                 hide-clear-button
                 placeholder="Chọn giờ"
@@ -173,7 +171,7 @@
           </div>
           <b-form-group label="Ghi chú">
             <b-form-textarea
-            v-model="noteTime"
+              v-model="noteTime"
               placeholder="Viết vào đây..."
               rows="3"
               max-rows="6"
@@ -220,7 +218,7 @@
           </b-form-group>
           <b-form-group label="Ghi chú">
             <b-form-textarea
-            v-model="noteTime"
+              v-model="noteTime"
               placeholder="Viết vào đây..."
               rows="3"
               max-rows="6"
@@ -280,8 +278,7 @@ export default {
       currentRestTime: 'one-day',
       endDate: '',
       restDate: '',
-      noteTime: '',
-      userSelected: '' // dùng tạm thời
+      noteTime: ''
     }
   },
   methods: {
@@ -305,19 +302,20 @@ export default {
         data: data
       })
         .then(res => {
-          console.log(res.data)
           if (res.data === false) {
             this.$toastr.error(
               'Thêm thất bại, vui lòng kiểm tra lại',
               'Lỗi rồi!'
             )
-          } else this.$toastr.success('Thêm thành công', 'Ngon lành')
+          } else {
+            this.$toastr.success('Thêm thành công', 'Ngon lành')
+          }
         })
         .catch(err => {})
     },
     sendWorkTime () {
       let data = {
-        UserId: this.userSelected,
+        UserId: this.$cookies.get('userData').userId,
         LeaderId: this.leadSelected,
         ClassifyTime: this.classifySelected,
         StartWorkTime: new Date(
@@ -330,7 +328,6 @@ export default {
       }
       let requestUrl = '/api/RegistTime/InsertWorkTime'
       if (
-        this.userSelected === '' ||
         this.leadSelected === null ||
         this.classifySelected === null ||
         this.startWorkTime === '' ||
@@ -351,7 +348,7 @@ export default {
     },
     sendRestTime () {
       let data = {
-        UserId: this.userSelected,
+        UserId: this.$cookies.get('userData').userId,
         LeaderId: this.leadSelected,
         StartRestTime: new Date(
           this.dataDate + ',' + this.startRestTime + ' UTC'
@@ -362,7 +359,6 @@ export default {
       }
       let requestUrl = '/api/RegistTime/InsertRestTime'
       if (
-        this.userSelected === '' ||
         this.leadSelected === null ||
         this.startRestTime === '' ||
         this.endRestTime === ''
@@ -382,7 +378,7 @@ export default {
     },
     sendRestDate () {
       let data = {
-        UserId: this.userSelected,
+        UserId: this.$cookies.get('userData').userId,
         LeaderId: this.leadSelected,
         StartRestTime: new Date(this.dataDate + ' UTC'),
         EndRestTime: new Date(this.endDate + ' UTC'),
@@ -390,11 +386,7 @@ export default {
         Note: this.noteTime
       }
       let requestUrl = '/api/RegistTime/InsertRestTime'
-      if (
-        this.userSelected === '' ||
-        this.leadSelected === null ||
-        this.endDate === ''
-      ) {
+      if (this.leadSelected === null || this.endDate === '') {
         this.$toastr.error(
           'Vui lòng chọn đầy đủ các trường',
           'Xin kiểm tra lại !!!'
@@ -476,7 +468,7 @@ export default {
   border-color: #28a745;
   padding-right: calc(0.75em + 2.3125rem);
 }
-.form-control:disabled{
+.form-control:disabled {
   cursor: not-allowed;
 }
 </style>

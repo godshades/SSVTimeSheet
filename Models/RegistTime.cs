@@ -10,14 +10,11 @@ namespace SSVTimeSheet.Models
         public string UserId { get; set; }
         public string LeaderId { get; set; }
         public string ClassifyTime { get; set; }
-        public DateTime StartWorkTime { get; set; }
-        public DateTime EndWorkTime { get; set; }
-        public float WorkTime { get; set; }
-        public DateTime StartRestTime { get; set; }
-        public DateTime EndRestTime { get; set; }
-        public float RestTime { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public float Time { get; set; }        
         public string Note { get; set; }
-        public bool? Status { get; set; }
+        public int Status { get; set; }
 
 
 

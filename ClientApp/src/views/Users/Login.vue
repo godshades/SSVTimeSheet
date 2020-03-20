@@ -54,18 +54,20 @@ export default {
         data: data
       })
         .then(res => {
-          console.log('signIn -> res', res.data)
-          if (res.status === 400) {
-            this.$toastr.error('Id hoặc mật khẩu không chính xác', 'Lỗi rồi!')
-          } else {
-            this.$toastr.success(
-              'Chào mừng bạn đến với Saishunkan System',
-              'Wellcome'
+          if (res.data.statusCode === 400) {
+            this.$toastr.error(
+              'Id hoặc mật khẩu không chính xác',
+              'Xin kiểm tra lại!'
             )
-            this.$router.push('/').catch(err => {})
+          } else {                  
             let token = res.data.token
-            this.$cookie.set('token', token)   
-            console.log("signIn -> cookie", this.$cookie.set('token', token))
+            this.$cookies.set('token', token)
+            this.$router.push({ name: 'home' }).catch(err => {})
+            this.$cookies.set('userData', res.data.userData)            
+            this.$toastr.success(
+              `Chào mừng ${res.data.userData.name} đến với Saishunkan System`,
+              'Wellcome'
+            )     
           }
         })
         .catch(err => {})

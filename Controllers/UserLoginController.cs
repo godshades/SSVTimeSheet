@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using SSVTimeSheet.Common;
 using SSVTimeSheet.Models;
 
 
@@ -49,17 +50,18 @@ namespace SSVTimeSheet.Controllers
         public IActionResult Authencate(LoginRequest request)
             {
 
+
             if (!ModelState.IsValid)
             {
                 return Ok(new { StatusCode = 400 });
             }
-            var user = new SUserDao().CheckLogin(request);
+            var user = new SUserDao().CheckLogin(request.UserId,Encryptor.MD5Hash(request.Password));
             if (user == null)
             {
                 return Ok(new { StatusCode = 400 });
             }
             var resultToken = GenerateJSONWebToken(user);
-            return Ok(new { token = resultToken });
+            return Ok(new { token = resultToken, userData = user });
         }
     }
 }

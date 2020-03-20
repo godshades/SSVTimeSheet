@@ -7,8 +7,11 @@ import VueAxios from 'vue-axios'
 import VueCookies from 'vue-cookies'
 import VueToastr2 from 'vue-toastr-2'
 import 'vue-toastr-2/dist/vue-toastr-2.min.css'
+import Vuex from 'vuex'
 import App from './App.vue'
 import router from './router'
+
+Vue.use(Vuex)
 window.toastr = require('toastr')
 Vue.use(VueToastr2)
 Vue.use(VueCookies)
@@ -22,4 +25,3 @@ new Vue({
   router,
   render: h => h(App)
 }).$mount('#app')
-

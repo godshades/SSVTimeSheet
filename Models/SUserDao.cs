@@ -8,11 +8,11 @@ namespace SSVTimeSheet.Models
         SqlCommand cmd;
         SqlConnection sqlConnect;
         private string conn = "Server=192.168.10.220;Database=TimeSheet;User Id=waosa;Password=sqlSaPass;";
-        public SUser CheckLogin(LoginRequest request)
+        public SUser CheckLogin(string UserId , string Password)
         {
             sqlConnect = new SqlConnection(conn);
             sqlConnect.Open();
-            cmd = new SqlCommand("SELECT * FROM dbo.SUser WHERE UserId='" + request.UserId + "' AND Password='" + request.Password + "'", sqlConnect);
+            cmd = new SqlCommand("SELECT * FROM dbo.SUser WHERE UserId='" + UserId + "' AND Password='" + Password + "'", sqlConnect);
             SqlDataReader reader = cmd.ExecuteReader();
             SUser s = new SUser();
             try
@@ -22,7 +22,7 @@ namespace SSVTimeSheet.Models
                     while (reader.Read())
                     {
                         s.UserId = reader["UserId"].ToString();
-                        s.Password = reader["Password"].ToString();
+                        //s.Password = reader["Password"].ToString();
                         s.Name = reader["Name"].ToString();
                         s.TeamId = reader["TeamId"] == null || reader["TeamId"].ToString() == string.Empty ? 0 : int.Parse(reader["TeamId"].ToString());
                         s.UserRole = reader["UserRole"] == null || reader["UserRole"].ToString() == string.Empty ? 0 : int.Parse(reader["UserRole"].ToString());
@@ -59,6 +59,6 @@ namespace SSVTimeSheet.Models
             }
 
         }       
-        
+                
     }
 }

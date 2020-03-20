@@ -11,8 +11,7 @@ using SSVTimeSheet.Models;
 namespace SSVTimeSheet.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
+    [ApiController]    
     public class RegistTimeController : Controller
     {
         [HttpPost("InsertWorkTime")]
@@ -25,6 +24,12 @@ namespace SSVTimeSheet.Controllers
         public JsonResult InsertRestTime(RegistTime data)
         {
             bool result = new RegistTimeDao().SaveRestTime(data);
+            return Json(result);
+        }
+        [HttpPost("GetTimeUser")]
+        public JsonResult GetTimeUser(string userId)
+        {
+            RegistTime result = new RegistTimeDao().GetAllTime(userId);
             return Json(result);
         }
     }

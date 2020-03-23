@@ -14,22 +14,16 @@ namespace SSVTimeSheet.Controllers
     [ApiController]    
     public class RegistTimeController : Controller
     {
-        [HttpPost("InsertWorkTime")]
+        [HttpPost("InsertTime")]
         public JsonResult InsertWorkTime(RegistTime data)
         {
-            bool result = new RegistTimeDao().SaveWorkTime(data);
+            bool result = new RegistTimeDao().SaveTime(data);
             return Json(result);
-        }
-        [HttpPost("InsertRestTime")]
-        public JsonResult InsertRestTime(RegistTime data)
-        {
-            bool result = new RegistTimeDao().SaveRestTime(data);
-            return Json(result);
-        }
+        }        
         [HttpPost("GetTimeUser")]
         public JsonResult GetTimeUser(string userId)
         {
-            RegistTime result = new RegistTimeDao().GetAllTime(userId);
+            List<RegistTime> result = new RegistTimeDao().GetAllTime(userId);
             return Json(result);
         }
     }

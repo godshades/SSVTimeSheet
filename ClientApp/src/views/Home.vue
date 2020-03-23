@@ -16,7 +16,7 @@
         </div>
       </b-navbar>
     </div>
-    <regist-time></regist-time>
+    <regist-time :key="componentRegistTime" v-on:changeComponentEvent = "refreshComponent"></regist-time>
   </div>
 </template>
 
@@ -24,24 +24,29 @@
 
 <script>
 // @ is an alias to /src
-import RegistTime from "./Users/RegistTime.vue";
+import RegistTime from './Users/RegistTime.vue'
 
 export default {
-  name: "home",
-  data() {
+  name: 'home',
+  data () {
     return {
-      userName: this.$cookies.get("userData").name
-    };
+      componentRegistTime: 0,
+      userName: this.$cookies.get('userData').name
+    }
   },
   components: {
     RegistTime
   },
   methods: {
-    logOut() {
-      this.$cookies.remove("token");
-      this.$cookies.remove("userData");
-      this.$router.push("/dang-nhap");
+    logOut () {
+      this.$cookies.remove('token')
+      this.$cookies.remove('userData')
+      this.$router.push('/dang-nhap')
+    },
+    refreshComponent () {
+      this.componentRegistTime += 1
+      // hàm thay đổi component
     }
   }
-};
+}
 </script>

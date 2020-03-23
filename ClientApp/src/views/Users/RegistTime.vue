@@ -3,7 +3,7 @@
     <b-container>
       <FullCalendar
         locale="vi"
-        :plugins="calendarPlugins"
+        :plugins="calendarPlugins"           
         :header="{
           left: 'title',
           center: 'dayGridMonth,timeGridWeek,timeGridDay,List',
@@ -19,7 +19,7 @@
         @dateClick="handleDateClick"
       />
     </b-container>
-    <ModalRestTime :dataDate="getDateClick"></ModalRestTime>
+    <ModalRestTime :dataDate="getDateClick" v-on:changComponent = "refreshComponent"></ModalRestTime>
   </div>
 </template>
 
@@ -41,18 +41,7 @@ export default {
         ListPlugin
       ],
       getDateClick: '',
-      event: [
-        {
-          title: 'su kien 1',
-          start: '2020-03-15', // a property!
-          end: '2020-03-20'
-        },
-        {
-          title: 'su kien 2',
-          start: '2020-03-17', // a property!
-          end: '2020-03-25'
-        }
-      ]
+      event: []
     }
   },
   components: {
@@ -65,11 +54,16 @@ export default {
       // console.log("handleDateClick -> e.dateStr", e.dateStr)
       this.getDateClick = e.dateStr
       // console.log(this.getDateClick)
+    },
+    refreshComponent () {
+      // console.log('ham 1 chay')
+      this.$emit('changeComponentEvent')
+      // sự kiện thay đổi component để refresh lại trang mà không cần reload
     }
   },
   created () {
     let userId = this.$cookies.get('userData').userId
-    console.log('mounted -> userId', userId)
+    // console.log('created -> userId', userId)
 
     this.axios({
       method: 'post',
@@ -78,7 +72,18 @@ export default {
         userId: userId
       }
     }).then(res => {
-      console.log('mounted -> res', res)
+      for (let key in res.data) {
+        // console.log('created -> key', key)
+        if (res.data.hasOwnProperty(key)) {
+          this.event.push({
+            title: res.data[key].classifyTime === 1 ? 'Làm thêm' : 'Xin nghỉ',
+            start: res.data[key].startTime,
+            end: res.data[key].endTime,
+            color: '#28a745'            
+          })
+        }
+      }
+      // console.log('created -> this.event', this.event)
     })
   }
 }

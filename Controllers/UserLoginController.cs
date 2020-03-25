@@ -49,8 +49,6 @@ namespace SSVTimeSheet.Controllers
         [AllowAnonymous]
         public IActionResult Authencate(LoginRequest request)
             {
-
-
             if (!ModelState.IsValid)
             {
                 return Ok(new { StatusCode = 400 });

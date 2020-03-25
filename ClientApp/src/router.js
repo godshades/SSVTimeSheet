@@ -16,7 +16,12 @@ let router = new Router({
       path: '/dang-nhap',
       name: 'userlogin',
       component: () => import('./views/Users/Login.vue')
-    }
+    },
+    {
+      path: '/admin/index',
+      name: 'admin',
+      component: () => import('./views/Admin/Index.vue')
+    },    
   ]
 })
 

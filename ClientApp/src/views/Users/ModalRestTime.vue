@@ -183,8 +183,8 @@
 </template>
 
 <script>
-import VueTimepicker from "vue2-timepicker";
-import "vue2-timepicker/dist/VueTimepicker.css";
+import VueTimepicker from 'vue2-timepicker'
+import 'vue2-timepicker/dist/VueTimepicker.css'
 export default {
   components: {
     VueTimepicker
@@ -194,215 +194,206 @@ export default {
       type: String
     }
   },
-  data() {
+  data () {
     return {
       leadSelected: null,
       LeaderSelect: [
-        { value: null, text: "Chọn", disabled: true },
-        { value: "VN0020", text: "Leader1" },
-        { value: "VN0022", text: "Leader2" },
-        { value: "VN0023", text: "Leader3" },
-        { value: "VN0025", text: "Leader4" }
+        { value: null, text: 'Chọn', disabled: true },
+        { value: 'VN0020', text: 'Leader1' },
+        { value: 'VN0022', text: 'Leader2' },
+        { value: 'VN0023', text: 'Leader3' },
+        { value: 'VN0025', text: 'Leader4' }
       ],
       classifySelected: null,
       classifyTime: [
-        { value: null, text: "Chọn", disabled: true },
-        { value: 1, text: "Làm thêm" },
-        { value: 2, text: "Xin nghỉ" },
-        { value: 3, text: "Xin nghỉ dài ngày" }
+        { value: null, text: 'Chọn', disabled: true },
+        { value: 1, text: 'Làm thêm' },
+        { value: 2, text: 'Xin nghỉ' },
+        { value: 3, text: 'Xin nghỉ dài ngày' }
       ],
       reasonSelected: 0,
       reasonList: [
-        { value: 0, text: "Chọn", disabled: true },
-        { value: 1, text: "Nghỉ phép có lương" },
-        { value: 2, text: "Nghỉ bù" },
-        { value: 3, text: "Nghỉ kinh nguyệt" },
-        { value: 4, text: "Nghỉ việc hiếu" },
-        { value: 5, text: "Nghỉ không phép" },
-        { value: 6, text: "Đi muộn" },
-        { value: 7, text: "Về sớm" },
-        { value: 8, text: "Ra ngoài vì việc riêng" },
-        { value: 9, text: "Đi công tác" },
-        { value: 10, text: "Đi làm ngày nghỉ" },
-        { value: 11, text: "Kết hôn" },
-        { value: 12, text: "Nghỉ sinh" },
-        { value: 13, text: "Khác( Viết vào ghi chú )" }
+        { value: 0, text: 'Chọn', disabled: true },
+        { value: 1, text: 'Nghỉ phép có lương' },
+        { value: 2, text: 'Nghỉ bù' },
+        { value: 3, text: 'Nghỉ kinh nguyệt' },
+        { value: 4, text: 'Nghỉ việc hiếu' },
+        { value: 5, text: 'Nghỉ không phép' },
+        { value: 6, text: 'Đi muộn' },
+        { value: 7, text: 'Về sớm' },
+        { value: 8, text: 'Ra ngoài vì việc riêng' },
+        { value: 9, text: 'Đi công tác' },
+        { value: 10, text: 'Đi làm ngày nghỉ' },
+        { value: 11, text: 'Kết hôn' },
+        { value: 12, text: 'Nghỉ sinh' },
+        { value: 13, text: 'Khác( Viết vào ghi chú )' }
       ],
-      nameContact: "",
-      phoneContact: "",
-      startTime: "",
-      endTime: "",
-      time: "",
-      endDate: "",
-      restDate: "",
-      noteTime: ""
-    };
+      nameContact: '',
+      phoneContact: '',
+      startTime: '',
+      endTime: '',
+      time: '',
+      endDate: '',
+      restDate: '',
+      noteTime: ''
+    }
   },
   methods: {
-    validateRequired(name) {
-      if (name != null && name !== ""  && name != 0) {
-        return true;
-      } else return false;
+    validateRequired (name) {
+      if (name != null && name !== '' && name != 0) {
+        return true
+      } else return false
     },
-    sendAxiosTime(requestUrl, data) {
+    sendAxiosTime (requestUrl, data) {
       this.axios({
-        method: "post",
+        method: 'post',
         url: requestUrl,
         data: data
       })
         .then(res => {
           if (res.data === false) {
             this.$toastr.error(
-              "Thêm thất bại, vui lòng kiểm tra lại",
-              "Lỗi rồi!"
-            );
+              'Thêm thất bại, vui lòng kiểm tra lại',
+              'Lỗi rồi!'
+            )
           } else {
-            this.$emit("changComponent"); // dùng sự kiện để gọi hàm refresh ở component cha
-            this.$toastr.success("Thêm thành công", "Ngon lành");
+            this.$emit('changComponent') // dùng sự kiện để gọi hàm refresh ở component cha
+            this.$toastr.success('Thêm thành công', 'Ngon lành')
           }
         })
-        .catch(err => {});
+        .catch(err => {})
     },
-    sendTime() {
+    sendTime () {
       let data = {
-        UserId: this.$cookies.get("userData").userId,
+        UserId: this.$cookies.get('userData').userId,
         LeaderId: this.leadSelected,
         ClassifyTime: this.classifySelected,
-        StartTime: new Date(this.dataDate + "," + this.startTime + " UTC"),
-        EndTime: new Date(this.dataDate + "," + this.endTime + " UTC"),
+        StartTime: new Date(this.dataDate + ',' + this.startTime + ' UTC'),
+        EndTime: new Date(this.dataDate + ',' + this.endTime + ' UTC'),
         // Khởi tạo ngày tháng rồi cộng 2 chuỗi string ngày với giờ lại
         Reason: this.reasonSelected,
         NameContact: this.nameContact,
         PhoneContact: this.phoneContact,
         Time: this.time,
         Note: this.noteTime
-      };
-      let requestUrl = "/api/RegistTime/InsertTime";
-      console.log("sendTime -> this.classifySelected", this.classifySelected);
-
-      if (this.classifySelected === 1) {
-        if (
-          this.leadSelected === null ||
-          this.classifySelected === null ||
-          this.startTime === "" ||
-          this.endTime === ""
-        ) {
-          this.$toastr.error(
-            "Vui lòng chọn đầy đủ các trường",
-            "Xin kiểm tra lại !!!"
-          );
-        }
       }
-      if (this.classifySelected !== 1) {
-        if (
-          this.leadSelected === null ||
-          this.classifySelected === null ||
-          this.startTime === "" ||
-          this.endTime === "" ||
-          this.reasonSelected === 0 ||
-          this.nameContact === "" ||
-          this.phoneContact === ""
-        ) {
-          this.$toastr.error(
-            "Vui lòng chọn đầy đủ các trường",
-            "Xin kiểm tra lại !!!"
-          );
-        }
-        if (this.checkPhone(this.phoneContact) === false) {
-          this.$toastr.error(
-            "SDT không đúng định dạng",
-            "Xin kiểm tra lại !!!"
-          );
-        }
-      }
-      if (this.handleShortTime === 0) {
-        this.$toastr.error(
-          "Giờ kết thúc phải lớn hơn giờ bắt đầu",
-          "Xin kiểm tra lại !!!"
-        );
-      } else {
-        this.sendAxiosTime(requestUrl, data);
-      }
+      let requestUrl = '/api/RegistTime/InsertTime'      
+      // if (
+      //   this.leadSelected === null ||
+      //   this.classifySelected === null ||
+      //   this.startTime === '' ||
+      //   this.endTime === ''
+      // ) {
+      //   this.$toastr.error(
+      //     'Vui lòng chọn đầy đủ các trường',
+      //     'Xin kiểm tra lại !!!'
+      //   )
+      // } else if (this.handleShortTime === 0) {
+      //   this.$toastr.error(
+      //     'Giờ kết thúc phải lớn hơn giờ bắt đầu',
+      //     'Xin kiểm tra lại !!!'
+      //   )
+      // } else if (this.classifySelected !== 1) {
+      //   if (
+      //     this.reasonSelected === 0 ||
+      //     this.nameContact === '' ||
+      //     this.phoneContact === ''
+      //   ) {
+      //     this.$toastr.error(
+      //       'Vui lòng chọn đầy đủ các trường',
+      //       'Xin kiểm tra lại !!!'
+      //     )
+      //   } else if (this.checkPhone(this.phoneContact) === false) {
+      //     this.$toastr.error(
+      //       'SDT không đúng định dạng',
+      //       'Xin kiểm tra lại !!!'
+      //     )
+      //   } else {
+      //     this.sendAxiosTime(requestUrl, data)
+      //   }
+      // } else {
+        this.sendAxiosTime(requestUrl, data)
+      // }
     },
-    sendDate() {
+    sendDate () {
       let data = {
-        UserId: this.$cookies.get("userData").userId,
+        UserId: this.$cookies.get('userData').userId,
         LeaderId: this.leadSelected,
         ClassifyTime: this.classifySelected,
-        StartTime: new Date(this.dataDate + " UTC"),
-        EndTime: new Date(this.endDate + " UTC"),
+        StartTime: new Date(this.dataDate + ' UTC'),
+        EndTime: new Date(this.endDate + ' UTC'),
         Reason: this.reasonSelected,
         NameContact: this.nameContact,
         PhoneContact: this.phoneContact,
         Time: this.restDate,
         Note: this.noteTime
-      };
-      debugger;
-      let requestUrl = "/api/RegistTime/InsertTime";
+      }
+      debugger
+      let requestUrl = '/api/RegistTime/InsertTime'
       if (
         this.leadSelected === null ||
         this.classifySelected === null ||
-        this.endDate === ""
+        this.endDate === ''
       ) {
         this.$toastr.error(
-          "Vui lòng chọn đầy đủ các trường",
-          "Xin kiểm tra lại !!!"
-        );
+          'Vui lòng chọn đầy đủ các trường',
+          'Xin kiểm tra lại !!!'
+        )
       } else if (this.handleLongTime === 0) {
         this.$toastr.error(
-          "Ngày kết thúc phải lớn hơn ngày bắt đầu",
-          "Xin kiểm tra lại !!!"
-        );
+          'Ngày kết thúc phải lớn hơn ngày bắt đầu',
+          'Xin kiểm tra lại !!!'
+        )
       } else if (this.checkPhone(this.phoneContact) === false) {
-        this.$toastr.error("SDT không đúng định dạng", "Xin kiểm tra lại !!!");
+        this.$toastr.error('SDT không đúng định dạng', 'Xin kiểm tra lại !!!')
       } else {
-        this.sendAxiosTime(requestUrl, data);
+        this.sendAxiosTime(requestUrl, data)
       }
     },
-    handleTime(starttime, endtime) {
-      let arrStartTime = starttime.split(":");
-      let arrEndTime = endtime.split(":");
+    handleTime (starttime, endtime) {
+      let arrStartTime = starttime.split(':')
+      let arrEndTime = endtime.split(':')
       let tempWorkTime =
         (parseInt(arrEndTime[0]) * 60 +
           parseInt(arrEndTime[1]) -
           (parseInt(arrStartTime[0]) * 60 + parseInt(arrStartTime[1]))) /
-        60;
+        60
       // số giờ * 60 + số phút để chuyển sang số phút rồi trừ cho nhau rồi /60 để trả về số giờ
-      let resultTime = Math.round((tempWorkTime / 8) * 1000) / 1000;
+      let resultTime = Math.round((tempWorkTime / 8) * 1000) / 1000
       // Chia cho 8 để trả ra số ngày(1 ngày làm 8 tiếng) làm tròn 2 chữ số sau dấu phẩy
       if (isNaN(resultTime) || resultTime <= 0) {
-        return 0;
+        return 0
       } else {
-        return resultTime;
+        return resultTime
       }
     },
-    checkPhone(num) {
-      let regex = /(09|01[2|6|8|9])+([0-9]{8})\b/g;
+    checkPhone (num) {
+      let regex = /(09|01[2|6|8|9])+([0-9]{8})\b/g
       if (regex.test(num) === false) {
-        return false;
-      } else return true;
+        return false
+      } else return true
     }
   },
   computed: {
-    handleShortTime: function() {
-      this.time = this.handleTime(this.startTime, this.endTime);
-      return this.time;
+    handleShortTime: function () {
+      this.time = this.handleTime(this.startTime, this.endTime)
+      return this.time
     },
-    handleLongTime: function() {
+    handleLongTime: function () {
       this.restDate =
         (new Date(this.endDate) - new Date(this.dataDate)) /
-        (1000 * 60 * 60 * 24);
+        (1000 * 60 * 60 * 24)
       // khởi tạo ngày bắt đầu và ngày kết thúc
       // sau khi trừ cho nhau thì kết quả trả về miliseconds
       // convert sang thành ngày bằng cách chia cho (1000 * 60 * 60 * 24)
       if (isNaN(this.restDate) || this.restDate <= 0) {
-        return 0;
+        return 0
       } else {
-        return this.restDate;
+        return this.restDate
       }
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

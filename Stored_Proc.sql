@@ -26,3 +26,19 @@ values (@UserId,
 @Status
 )
 go 
+
+CREATE PROCEDURE Sp_UpdateSttRegistTime
+@Id tinyint,
+@Status tinyint
+AS
+BEGIN 
+UPDATE SRegistTime 
+SET [Status] =  @Status
+WHERE Id = @Id
+END 
+GO
+
+CREATE PROCEDURE Sp_SelectRequire (@LeaderId varchar(6))
+as
+SELECT * FROM dbo.SRegistTime join dbo.SUser on SRegistTime.UserId = SUser.UserId WHERE Status ='0' AND LeaderId = @LeaderId
+GO

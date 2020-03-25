@@ -3,7 +3,7 @@
     <b-container>
       <FullCalendar
         locale="vi"
-        :plugins="calendarPlugins"           
+        :plugins="calendarPlugins"
         :header="{
           left: 'title',
           center: 'dayGridMonth,timeGridWeek,timeGridDay,List',
@@ -19,7 +19,10 @@
         @dateClick="handleDateClick"
       />
     </b-container>
-    <ModalRestTime :dataDate="getDateClick" v-on:changComponent = "refreshComponent"></ModalRestTime>
+    <ModalRestTime
+      :dataDate="getDateClick"
+      v-on:changComponent="refreshComponent"
+    ></ModalRestTime>
   </div>
 </template>
 
@@ -59,32 +62,35 @@ export default {
       // console.log('ham 1 chay')
       this.$emit('changeComponentEvent')
       // sự kiện thay đổi component để refresh lại trang mà không cần reload
+    },
+    getDataRegist () {
+      let userId = this.$cookies.get('userData').userId
+      // console.log('created -> userId', userId)
+
+      this.axios({
+        method: 'get',
+        url: '/api/RegistTime/GetTimeUser',
+        params: {
+          userId: userId
+        }
+      }).then(res => {
+        for (let key in res.data) {
+          // console.log('created -> key', key)
+          if (res.data.hasOwnProperty(key)) {
+            this.event.push({
+              title: res.data[key].classifyTime === 1 ? 'Làm thêm' : 'Xin nghỉ',
+              start: res.data[key].startTime,
+              end: res.data[key].endTime,
+              color: '#28a745'
+            })
+          }
+        }
+        // console.log('created -> this.event', this.event)
+      })
     }
   },
   created () {
-    let userId = this.$cookies.get('userData').userId
-    // console.log('created -> userId', userId)
-
-    this.axios({
-      method: 'post',
-      url: '/api/RegistTime/GetTimeUser',
-      params: {
-        userId: userId
-      }
-    }).then(res => {
-      for (let key in res.data) {
-        // console.log('created -> key', key)
-        if (res.data.hasOwnProperty(key)) {
-          this.event.push({
-            title: res.data[key].classifyTime === 1 ? 'Làm thêm' : 'Xin nghỉ',
-            start: res.data[key].startTime,
-            end: res.data[key].endTime,
-            color: '#28a745'            
-          })
-        }
-      }
-      // console.log('created -> this.event', this.event)
-    })
+    this.getDataRegist()
   }
 }
 </script>

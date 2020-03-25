@@ -7,7 +7,9 @@ namespace SSVTimeSheet.Models
 {
     public class RegistTime
     {
+        public int Id { get; set; }
         public string UserId { get; set; }
+        public string UserName { get; set; }
         public string LeaderId { get; set; }
         public int ClassifyTime { get; set; }
         public DateTime StartTime { get; set; }

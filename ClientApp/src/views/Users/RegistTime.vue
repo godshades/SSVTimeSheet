@@ -65,7 +65,7 @@ export default {
     },
     getDataRegist () {
       let userId = this.$cookies.get('userData').userId
-      // console.log('created -> userId', userId)
+      console.log('created -> userId', userId)
 
       this.axios({
         method: 'get',

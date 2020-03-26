@@ -5,21 +5,21 @@ Create proc Sp_InsertTime (
 @StartTime datetime,
 @EndTime datetime,
 @Time float,
-@Reason tinyint,
+@ReasonId tinyint,
 @NameContact nvarchar(250),
 @PhoneContact varchar(15),
 @Note nvarchar(500),
 @Status tinyint
 )
 as 
-insert into dbo.SRegistTime (UserId,LeaderId,ClassifyTime,StartTime,EndTime,[Time],Reason,NameContact,PhoneContact,Note, [Status])
+insert into dbo.SRegistTime (UserId,LeaderId,ClassifyTime,StartTime,EndTime,[Time],ReasonId,NameContact,PhoneContact,Note, [Status])
 values (@UserId,
 @LeaderId,
 @ClassifyTime,
 @StartTime,
 @EndTime,
 @Time,
-@Reason,
+@ReasonId,
 @NameContact,
 @PhoneContact,
 @Note,

@@ -10,8 +10,8 @@ namespace SSVTimeSheet.Models
         public string UserId { get; set; }
         public string Password { get; set; }
         public string Name { get; set; }
-        public int TeamId { get; set; }
-        public int UserRole { get; set; }
+        public string LeadUser { get; set; }
+        public int TypeId { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime Birthday { get; set; }
         public string Email { get; set; }

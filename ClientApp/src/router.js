@@ -10,7 +10,10 @@ let router = new Router({
     {
       path: '/',
       name: 'home',
-      component: Home
+      component: Home,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/dang-nhap',
@@ -18,22 +21,39 @@ let router = new Router({
       component: () => import('./views/Users/Login.vue')
     },
     {
-      path: '/admin/index',
+      path: '/admin',
       name: 'admin',
-      component: () => import('./views/Admin/Index.vue')
-    },    
+      component: () => import('./views/Admin/Index.vue'),
+      meta: {
+        requiresAuth: true,
+        is_admin: true
+      }
+    }
   ]
 })
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/dang-nhap']
-  const authRequired = !publicPages.includes(to.path)
-  console.log('authRequired', authRequired)
   const loggedIn = Vue.$cookies.get('token')
-  if (authRequired && loggedIn === null) {
-    return next('/dang-nhap')
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (loggedIn === null) {
+      next({
+        path: '/dang-nhap',
+        params: { nextUrl: to.fullPath }
+      })
+    } else {
+      let permission = Vue.$cookies.get('userData').typeId
+      if (to.matched.some(record => record.meta.is_admin)) {
+        if (permission === 4 || permission === 5) {
+          next()
+        } else {
+          next({ name: 'home' })
+        }
+      } else {
+        next()
+      }
+    }
+  } else {
+    next()
   }
-
-  next()
 })
 export default router

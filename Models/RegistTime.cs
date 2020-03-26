@@ -14,7 +14,8 @@ namespace SSVTimeSheet.Models
         public int ClassifyTime { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public int Reason { get; set; }
+        public string ReasonName { get; set; }
+        public int ReasonId { get; set; }
         public string NameContact { get; set; }
         public string PhoneContact { get; set; }
         public float Time { get; set; }        

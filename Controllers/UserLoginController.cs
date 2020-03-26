@@ -31,8 +31,8 @@ namespace SSVTimeSheet.Controllers
             {
             new Claim(JwtRegisteredClaimNames.NameId, userInfo.UserId),
             new Claim(JwtRegisteredClaimNames.FamilyName, userInfo.Name),
-            new Claim("Role", userInfo.UserRole.ToString()),
-            new Claim("TeamId", userInfo.UserRole.ToString()),
+            new Claim("TypeId", userInfo.TypeId.ToString()),
+            new Claim("LeadUser", userInfo.LeadUser.ToString()),
             };
 
 
@@ -41,7 +41,6 @@ namespace SSVTimeSheet.Controllers
               claims,
               expires: DateTime.Now.AddMinutes(120),
               signingCredentials: credentials);
-
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 

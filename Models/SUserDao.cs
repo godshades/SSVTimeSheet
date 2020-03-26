@@ -24,8 +24,8 @@ namespace SSVTimeSheet.Models
                         s.UserId = reader["UserId"].ToString();
                         //s.Password = reader["Password"].ToString();
                         s.Name = reader["Name"].ToString();
-                        s.TeamId = reader["TeamId"] == null || reader["TeamId"].ToString() == string.Empty ? 0 : int.Parse(reader["TeamId"].ToString());
-                        s.UserRole = reader["UserRole"] == null || reader["UserRole"].ToString() == string.Empty ? 0 : int.Parse(reader["UserRole"].ToString());
+                        s.LeadUser = reader["LeadUser"].ToString();
+                        s.TypeId = reader["TypeId"] == null || reader["TypeId"].ToString() == string.Empty ? 0 : int.Parse(reader["TypeId"].ToString());
                         s.CreateDate = reader["CreateDate"] == null || reader["CreateDate"].ToString() == string.Empty ? DateTime.Now : DateTime.Parse(reader["CreateDate"].ToString());
                         s.Birthday = reader["Birthday"] == null || reader["Birthday"].ToString() == string.Empty ? DateTime.Now : DateTime.Parse(reader["Birthday"].ToString());
                         s.Email = reader["Email"].ToString();

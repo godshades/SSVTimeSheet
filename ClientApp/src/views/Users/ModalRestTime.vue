@@ -271,7 +271,7 @@ export default {
         StartTime: new Date(this.dataDate + ',' + this.startTime + ' UTC'),
         EndTime: new Date(this.dataDate + ',' + this.endTime + ' UTC'),
         // Khởi tạo ngày tháng rồi cộng 2 chuỗi string ngày với giờ lại
-        Reason: this.reasonSelected,
+        ReasonId: this.reasonSelected,
         NameContact: this.nameContact,
         PhoneContact: this.phoneContact,
         Time: this.time,
@@ -322,7 +322,7 @@ export default {
         ClassifyTime: this.classifySelected,
         StartTime: new Date(this.dataDate + ' UTC'),
         EndTime: new Date(this.endDate + ' UTC'),
-        Reason: this.reasonSelected,
+        ReasonId: this.reasonSelected,
         NameContact: this.nameContact,
         PhoneContact: this.phoneContact,
         Time: this.restDate,

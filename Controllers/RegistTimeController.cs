@@ -27,9 +27,9 @@ namespace SSVTimeSheet.Controllers
             return Json(result);
         }
         [HttpGet("GetRequirementTime")]
-        public JsonResult GetRequirementTime(string leaderId)
+        public JsonResult GetRequirementTime(string leaderId, int status)
         {
-            List<RegistTime> result = new RegistTimeDao().GetRequirementTime(leaderId);
+            List<RegistTime> result = new RegistTimeDao().GetRequirementTime(leaderId, status);
             return Json(result);
         }
         [HttpGet("ApproveTime")]

@@ -59,15 +59,19 @@ export default {
               'Id hoặc mật khẩu không chính xác',
               'Xin kiểm tra lại!'
             )
-          } else {                  
+          } else {
             let token = res.data.token
             this.$cookies.set('token', token)
+            this.$cookies.set('userData', res.data.userData)
             this.$router.push({ name: 'home' }).catch(err => {})
-            this.$cookies.set('userData', res.data.userData)            
+            console.log(
+              "signIn -> this.$cookies.set('userData', res.data.userData)",
+              this.$cookies.get('userData')
+            )
             this.$toastr.success(
               `Chào mừng ${res.data.userData.name} đến với Saishunkan System`,
               'Wellcome'
-            )     
+            )
           }
         })
         .catch(err => {})

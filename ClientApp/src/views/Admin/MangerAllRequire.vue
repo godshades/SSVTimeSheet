@@ -4,7 +4,7 @@
       <div class="container-fluid">
         <ul class="breadcrumb">
           <li class="breadcrumb-item"><a href="/admin/index">Home</a></li>
-          <li class="breadcrumb-item active">Yêu cầu</li>
+          <li class="breadcrumb-item active">Tất cả yêu cầu</li>
         </ul>
       </div>
     </div>
@@ -21,12 +21,11 @@
                 <thead>
                   <tr>
                     <th>STT</th>
-                    <th>Tên</th>
+                    <th>Tên người dùng</th>
                     <th>Kiểu thời gian</th>
                     <th>Thời gian bắt đầu</th>
                     <th>Thời gian kết thúc</th>
                     <th>Tổng thời gian</th>
-                    <th>Lý do</th>
                     <th>Tên người liên hệ</th>
                     <th>SĐT liên hệ</th>
                     <th>Ghi chú</th>
@@ -41,20 +40,19 @@
                     <td>{{ item.startTime }}</td>
                     <td>{{ item.endTime }}</td>
                     <td>{{ item.time }} ngày</td>
-                    <td>{{ item.reasonName }}</td>
                     <td>{{ item.nameContact }}</td>
                     <td>{{ item.phoneContact }}</td>
                     <td>{{ item.note }}</td>
                     <td>
                       <b-button
                         variant="success"
-                        @click="approveRequire(item.Id, approYes, index)"
+                        @click="removeRequire(item.Id, 2, index)"
                         class="mr-1"
                         ><font-awesome-icon icon="check"
                       /></b-button>
                       <b-button
                         variant="danger"
-                        @click="approveRequire(item.Id, 1, index)"
+                        @click="removeRequire(item.Id, 1, index)"
                         ><font-awesome-icon icon="times"
                       /></b-button>
                     </td>
@@ -68,29 +66,22 @@
     </section>
   </div>
 </template>
+
 <script>
 export default {
   name: 'manager-requirement',
   data () {
     return {
-      requirementTime: [],
-      approYes: this.$cookies.get('userData').typeId === 4 ? 2 : 3
-      // Nếu là leader thì trạng thái đồng ý sẽ là 2|| còn manager thì sẽ là 3
+      requirementTime: []
     }
   },
   methods: {
     getRequirementTime () {
       let leaderid = this.$cookies.get('userData').userId
-      let status = this.$cookies.get('userData').typeId === 4 ? 0 : 2
-      // lấy quyền người dùng
       this.axios
         .get('/api/RegistTime/GetRequirementTime', {
           params: {
-            leaderId: leaderid,
-            status: status
-            // nếu là leader(per == 4) thì nhận yêu cầu là chưa duyệt (0)
-            // còn nếu là manager (5) tức là khác 4 => thì nhận yêu cầu đã duyệt
-            // của leader (leader đã duyệt thì stt = 2)
+            leaderId: leaderid
           }
         })
         .then(res => {
@@ -106,14 +97,13 @@ export default {
                   res.data[key].classifyTime === 1 ? 'Làm thêm' : 'Xin nghỉ',
                 startTime: startTime,
                 endTime: endTime,
-                reasonName: res.data[key].reasonName,
                 nameContact: res.data[key].nameContact,
                 phoneContact: res.data[key].phoneContact,
                 time: res.data[key].time,
                 note: res.data[key].note
               })
             }
-          }
+          }          
         })
         .catch(err => {
           console.error(err)
@@ -123,7 +113,7 @@ export default {
       let format = datetime.replace('T', ' ').slice(0, 16)
       return format
     },
-    approveRequire (id, status, index) {
+    removeRequire (id, status, index) {
       console.log('removeRequire -> status', status)
       console.log('removeRequire -> id', id)
       this.axios
@@ -146,7 +136,7 @@ export default {
     }
   },
   created () {
-    this.getRequirementTime()
+    this.getRequirementTime()    
   },
   mounted () {
     // console.log('mounted -> requirementTime', this.requirementTime)

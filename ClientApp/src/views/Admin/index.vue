@@ -14,8 +14,8 @@
                 alt="person"
                 class="img-fluid rounded-circle mCS_img_loaded"
               />
-              <h2 class="h5">Nathan Andrews</h2>
-              <span>Web Developer</span>
+              <h2 class="h5">{{userName}}</h2>
+              <span>Leader</span>
             </div>
             <!-- Small Brand information, appears on minimized sidebar-->
             <div class="sidenav-header-logo">
@@ -29,66 +29,20 @@
             <h5 class="sidenav-heading">Main</h5>
             <ul id="side-main-menu" class="side-menu list-unstyled">
               <li>
-                <a href="index.html"> <i class="icon-home"></i>Home </a>
-              </li>
-              <li>
-                <a href="forms.html"> <i class="icon-form"></i>Forms </a>
-              </li>
-              <li>
-                <a href="charts.html">
-                  <i class="fa fa-bar-chart"></i>Charts
-                </a>
-              </li>
-              <li class="active">
-                <a href="tables.html"> <i class="icon-grid"></i>Tables </a>
-              </li>
-              <li>
-                <a
-                  href="#exampledropdownDropdown"
-                  aria-expanded="false"
-                  data-toggle="collapse"
-                >
-                  <i class="icon-interface-windows"></i>Example dropdown
-                </a>
-                <ul
-                  id="exampledropdownDropdown"
-                  class="collapse list-unstyled "
-                >
-                  <li><a href="#">Page</a></li>
-                  <li><a href="#">Page</a></li>
-                  <li><a href="#">Page</a></li>
-                </ul>
-              </li>
-              <li>
-                <a href="login.html">
-                  <i class="icon-interface-windows"></i>Login page
+                <a href="/">
+                  <font-awesome-icon icon="home" /> Đi đến trang chủ
                 </a>
               </li>
               <li>
                 <a href="#">
-                  <i class="icon-mail"></i>Demo
-                  <div class="badge badge-warning">6 New</div></a
+                  <font-awesome-icon icon="check" />Yêu cầu chưa duyệt
+                  <div class="badge badge-info ml-auto">{{countRequire}}</div></a
                 >
-              </li>
-            </ul>
-          </div>
-          <div class="admin-menu">
-            <h5 class="sidenav-heading">Second menu</h5>
-            <ul id="side-admin-menu" class="side-menu list-unstyled">
-              <li>
-                <a href="#"> <i class="icon-screen"> </i>Demo</a>
               </li>
               <li>
                 <a href="#">
-                  <i class="icon-flask"> </i>Demo
-                  <div class="badge badge-info">Special</div></a
-                >
-              </li>
-              <li>
-                <a href=""> <i class="icon-flask"> </i>Demo</a>
-              </li>
-              <li>
-                <a href=""> <i class="icon-picture"> </i>Demo</a>
+                  <font-awesome-icon icon="table" />Yêu cầu đã duyệt
+                </a>
               </li>
             </ul>
           </div>
@@ -129,7 +83,7 @@
           </form>
         </nav>
         <div class="content-dashboard">
-          <ManagerRequirement v-on:refreshComponent="loadData()" />
+          <ManagerRequirement v-on:refreshComponent="loadData()"/>
         </div>
       </div>
     </div>
@@ -140,7 +94,8 @@ import ManagerRequirement from './ManagerRequirement.vue'
 export default {
   data () {
     return {
-      countRequire: ''
+      countRequire: '',
+      userName: this.$cookies.get('userData').name
     }
   },
   components: {
@@ -149,7 +104,7 @@ export default {
   methods: {
     loadData () {
       let leaderId = this.$cookies.get('userData').userId
-      let sttapprove = 0
+      let sttapprove = this.$cookies.get('userData').typeId === 4 ? 0 : 2
       this.axios
         .get('/api/RegistTime/SttApprove', {
           params: {
@@ -179,7 +134,7 @@ export default {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background-color: #888;
+  background-color: #33b35a;
   border-radius: 10px;
 }
 
@@ -230,49 +185,48 @@ export default {
   display: inline-block;
 }
 .side-navbar a.brand-small {
-    text-transform: uppercase;
-    font-weight: 500;
-    padding: 0;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 0;
 }
 .side-navbar .brand-small {
-    display: none;
+  display: none;
 }
 .side-navbar a.brand-small strong {
-    font-size: 1.5rem;
+  font-size: 1.5rem;
 }
 .side-navbar .sidenav-heading {
-    font-weight: 700;
-    color: #adb5bd;
-    font-size: .9rem;
-    text-transform: uppercase;
-    letter-spacing: .1em;
-    margin-left: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+  font-weight: 700;
+  color: #adb5bd;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-left: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 .side-navbar li {
-    position: relative;
+  position: relative;
 }
 .side-navbar li a {
-    position: relative;
-    font-size: .9rem;
-    font-weight: 300;
-    color: #fff;
-    text-decoration: none;
-    width: 100%;
-    padding: 12px;
+  position: relative;
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: #fff;
+  text-decoration: none;
+  width: 100%;
+  padding: 12px;
 }
-.side-navbar i {
-    font-size: inherit;
-    margin-right: 10px;
+.side-navbar svg {
+  font-size: inherit;
+  margin-right: 10px;
 }
-.side-navbar i[class*='icon-'] {
-    -webkit-transform: translateY(2px);
-    transform: translateY(2px);
-}
-.side-navbar li a:focus, .side-navbar li a:hover {
-    background: #33b35a;
-    color: #fff;
-    text-decoration: none;
+
+.side-navbar li a:focus,
+.side-navbar li a:hover {
+  background: #33b35a;
+  color: #fff;
+  text-decoration: none;
 }
 </style>

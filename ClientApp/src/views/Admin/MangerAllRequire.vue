@@ -46,13 +46,13 @@
                     <td>
                       <b-button
                         variant="success"
-                        @click="removeRequire(item.Id, 2, index)"
+                        @click="removeRequire(item.Id, 3, index)"
                         class="mr-1"
                         ><font-awesome-icon icon="check"
                       /></b-button>
                       <b-button
                         variant="danger"
-                        @click="removeRequire(item.Id, 1, index)"
+                        @click="removeRequire(item.Id, 2, index)"
                         ><font-awesome-icon icon="times"
                       /></b-button>
                     </td>

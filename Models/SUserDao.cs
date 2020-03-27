@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 
 namespace SSVTimeSheet.Models
@@ -58,7 +59,52 @@ namespace SSVTimeSheet.Models
                 }
             }
 
-        }       
-                
+        }
+        public List<SUser> GetAllLeader(int typeId)
+        {            
+            sqlConnect = new SqlConnection(conn);
+            sqlConnect.Open();
+            cmd = new SqlCommand("SELECT [UserId], [Name] FROM dbo.SUser WHERE [TypeId] ='" + (typeId + 1) + "'", sqlConnect);
+            // Nếu là User(type =1 thì query leader(type = 2), Nếu là leader(type = 2) query manager(type = 3)
+            SqlDataReader reader = cmd.ExecuteReader();
+            List<SUser> GetLeader = new List<SUser>();
+            SUser s = null;
+           
+            try
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        s = new SUser();
+                        s.UserId = reader["UserId"].ToString();                        
+                        s.Name = reader["Name"].ToString();
+                        GetLeader.Add(s);
+                    }
+                    return GetLeader;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch
+            {
+
+                return null;
+            }
+            finally
+            {
+
+                if (reader != null)
+                {
+                    reader.Close();
+                }
+                if (sqlConnect != null)
+                {
+                    sqlConnect.Close();
+                }
+            }
+        }      
     }
 }

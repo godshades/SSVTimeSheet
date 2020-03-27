@@ -33,7 +33,7 @@ namespace SSVTimeSheet.Models
                 cmd.Parameters.AddWithValue("@NameContact", data.NameContact == null || data.NameContact == string.Empty ? "Không" : data.NameContact.ToString());
                 cmd.Parameters.AddWithValue("@PhoneContact", data.PhoneContact == null || data.PhoneContact == string.Empty ? "Không" : data.PhoneContact.ToString());
                 cmd.Parameters.AddWithValue("@Note", data.Note.ToString());
-                cmd.Parameters.AddWithValue("@Status", 0); // Trạng thái chưa duyệt == 0, Không duyệt == 1, đã duyệt ==2;
+                cmd.Parameters.AddWithValue("@Status", 1); // Trạng thái chưa duyệt == 1, Không duyệt == 2,Lead đã duyệt ==3, manager duyệt = 4;
                 cmd.ExecuteNonQuery();
                 return true;
             }
@@ -104,18 +104,18 @@ namespace SSVTimeSheet.Models
         public List<RegistTime> GetRequirementTime(string leaderId, int status)
         {
             string nameQuery = "";
-            if(status == 0)
+            if(status == 1)
             {
                 nameQuery = "LeaderId";
-            }else if(status == 2)
+            }else if(status == 3)
             {
                 nameQuery = "ManagerId";
             }
-            // nếu status = 0 thì truy vấn cho leader 
-            // status bằng 2 thì truy vấn cho manager
+            // nếu status = 1 thì truy vấn cho leader 
+            // status bằng 3 thì truy vấn cho manager
             sqlConnect = new SqlConnection(conn);
             sqlConnect.Open();
-            cmd = new SqlCommand("SELECT * FROM dbo.SRegistTime join dbo.SUser on SRegistTime.UserId = SUser.UserId join dbo.SRegistReason on SRegistTime.ReasonId = SRegistReason.ReasonId WHERE Status ='"+ status +"' AND "+ nameQuery+ " = '" + leaderId+"'", sqlConnect);// Sau này phân quyền thì gửi thêm userId của người quản lý để query chỉ yêu cầu quản lý nào thì quản lý đó được xem thôi
+            cmd = new SqlCommand("SELECT *,(SELECT  TypeName FROM SType t where r.ReasonId = t.TypeId and GroupId = '3') as ReasonName FROM dbo.SRegistTime r JOIN dbo.SUser u ON r.UserId = u.UserId WHERE [Status] = '" + status +"' AND "+ nameQuery + " = '"+ leaderId + "'", sqlConnect);
             SqlDataReader reader = cmd.ExecuteReader();
             List<RegistTime> GetAll = new List<RegistTime>();
             RegistTime re = null;
@@ -127,13 +127,11 @@ namespace SSVTimeSheet.Models
                     {
                         re = new RegistTime();
                         re.Id = int.Parse(reader["Id"].ToString());
-                        re.UserName = reader["Name"].ToString();
-                        re.LeaderId = reader["LeaderId"].ToString();
+                        re.UserName = reader["Name"].ToString();                        
                         re.ClassifyTime = int.Parse(reader["ClassifyTime"].ToString());
                         re.StartTime = DateTime.Parse(reader["StartTime"].ToString());
                         re.EndTime = DateTime.Parse(reader["EndTime"].ToString());
-                        re.Time = float.Parse(reader["Time"].ToString());
-                        re.ReasonId = int.Parse(reader["ReasonId"].ToString());
+                        re.Time = float.Parse(reader["Time"].ToString());                       
                         re.ReasonName = reader["ReasonName"].ToString();
                         re.NameContact = reader["NameContact"].ToString();
                         re.PhoneContact = reader["PhoneContact"].ToString();
@@ -195,11 +193,11 @@ namespace SSVTimeSheet.Models
         public int SttApprove(string leaderId, int sttapprove)
         {
             string nameQuery = "";
-            if (sttapprove == 0)
+            if (sttapprove == 1)
             {
                 nameQuery = "LeaderId";                
             }
-            else if (sttapprove == 2)
+            else if (sttapprove == 3)
             {
                 nameQuery = "ManagerId";
             }

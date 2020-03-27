@@ -54,7 +54,7 @@
                       /></b-button>
                       <b-button
                         variant="danger"
-                        @click="approveRequire(item.Id, 1, index)"
+                        @click="approveRequire(item.Id, 2, index)"
                         ><font-awesome-icon icon="times"
                       /></b-button>
                     </td>
@@ -74,23 +74,23 @@ export default {
   data () {
     return {
       requirementTime: [],
-      approYes: this.$cookies.get('userData').typeId === 4 ? 2 : 3
-      // Nếu là leader thì trạng thái đồng ý sẽ là 2|| còn manager thì sẽ là 3
+      approYes: this.$cookies.get('userData').typeId === 4 ? 3 : 4
+      // Nếu là leader thì trạng thái đồng ý sẽ là 3|| còn manager thì sẽ là 4
     }
   },
   methods: {
     getRequirementTime () {
       let leaderid = this.$cookies.get('userData').userId
-      let status = this.$cookies.get('userData').typeId === 4 ? 0 : 2
+      let status = this.$cookies.get('userData').typeId === 4 ? 1 : 3
       // lấy quyền người dùng
       this.axios
         .get('/api/RegistTime/GetRequirementTime', {
           params: {
             leaderId: leaderid,
             status: status
-            // nếu là leader(per == 4) thì nhận yêu cầu là chưa duyệt (0)
+            // nếu là leader(per == 4) thì nhận yêu cầu là chưa duyệt (1)
             // còn nếu là manager (5) tức là khác 4 => thì nhận yêu cầu đã duyệt
-            // của leader (leader đã duyệt thì stt = 2)
+            // của leader (leader đã duyệt thì stt = 3)
           }
         })
         .then(res => {

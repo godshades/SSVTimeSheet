@@ -10,6 +10,7 @@
           <b-navbar-nav>
             <b-nav-item-dropdown :text="userName" class="ml-auto">
               <b-dropdown-item href="#">Thông tin của bạn</b-dropdown-item>
+              <b-dropdown-item v-if="permission != 1" href="/admin">Vào trang quản trị</b-dropdown-item>
               <b-dropdown-item @click="logOut()">Đăng xuất</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
@@ -31,7 +32,8 @@ export default {
   data () {
     return {
       componentRegistTime: 0,
-      userName: this.$cookies.get('userData').name
+      userName: this.$cookies.get('userData').name,
+      permission: this.$cookies.get('userData').typeId   
     }
   },
   components: {

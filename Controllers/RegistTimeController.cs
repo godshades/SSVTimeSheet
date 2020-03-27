@@ -44,5 +44,11 @@ namespace SSVTimeSheet.Controllers
             var result = new RegistTimeDao().SttApprove(leaderId, sttapprove);
             return Json(result);
         }
+        [HttpGet("GetAllLeader")]
+        public JsonResult GetAllLeader(int typeId)
+        {
+            List<SUser> result = new SUserDao().GetAllLeader(typeId);
+            return Json(result);
+        }
     }
 }

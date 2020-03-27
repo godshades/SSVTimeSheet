@@ -198,11 +198,7 @@ export default {
     return {
       leadSelected: null,
       LeaderSelect: [
-        { value: null, text: 'Chọn', disabled: true },
-        { value: 'VN0020', text: 'Leader1' },
-        { value: 'VN0022', text: 'Leader2' },
-        { value: 'VN0023', text: 'Leader3' },
-        { value: 'VN0025', text: 'Leader4' }
+
       ],
       classifySelected: null,
       classifyTime: [
@@ -238,7 +234,36 @@ export default {
       noteTime: ''
     }
   },
+  created () {
+    this.loadData()
+  },
   methods: {
+    loadData () {
+      let typeId = this.$cookies.get('userData').typeId      
+      let leadUser = this.$cookies.get('userData').leadUser      
+      this.axios
+        .get('/api/RegistTime/GetAllLeader', {
+          params: {
+            typeId: typeId
+          }
+        })
+        .then(res => {          
+          for (const key in res.data) {
+            if (res.data.hasOwnProperty(key)) {              
+              if(res.data[key].userId === leadUser){
+                this.leadSelected = leadUser
+              }
+              this.LeaderSelect.push({                                            
+                value: res.data[key].userId,
+                text: res.data[key].name
+              })
+            }
+          }
+        })
+        .catch(err => {
+          console.error(err)
+        })
+    },
     validateRequired (name) {
       if (name != null && name !== '' && name != 0) {
         return true
@@ -277,7 +302,7 @@ export default {
         Time: this.time,
         Note: this.noteTime
       }
-      let requestUrl = '/api/RegistTime/InsertTime'      
+      let requestUrl = '/api/RegistTime/InsertTime'
       // if (
       //   this.leadSelected === null ||
       //   this.classifySelected === null ||
@@ -312,7 +337,7 @@ export default {
       //     this.sendAxiosTime(requestUrl, data)
       //   }
       // } else {
-        this.sendAxiosTime(requestUrl, data)
+      this.sendAxiosTime(requestUrl, data)
       // }
     },
     sendDate () {

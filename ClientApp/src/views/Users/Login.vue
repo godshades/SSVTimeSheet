@@ -63,11 +63,8 @@ export default {
             let token = res.data.token
             this.$cookies.set('token', token)
             this.$cookies.set('userData', res.data.userData)
-            this.$router.push({ name: 'home' }).catch(err => {})
-            console.log(
-              "signIn -> this.$cookies.set('userData', res.data.userData)",
-              this.$cookies.get('userData')
-            )
+            // console.log("signIn -> res.data.userData", res.data.userData)
+            this.$router.push({ name: 'home' }).catch(err => {})            
             this.$toastr.success(
               `Chào mừng ${res.data.userData.name} đến với Saishunkan System`,
               'Wellcome'

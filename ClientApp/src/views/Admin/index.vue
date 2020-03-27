@@ -61,7 +61,7 @@
               <a href="/admin/index" class="nav-link">Dashboard</a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-              <a href="#" class="nav-link">Contact</a>
+              <a @click.stop.prevent="logOut()" href="#" class="nav-link">Đăng xuất</a>
             </li>
           </ul>
 
@@ -104,7 +104,7 @@ export default {
   methods: {
     loadData () {
       let leaderId = this.$cookies.get('userData').userId
-      let sttapprove = this.$cookies.get('userData').typeId === 4 ? 0 : 2
+      let sttapprove = this.$cookies.get('userData').typeId === 4 ? 1 : 3
       this.axios
         .get('/api/RegistTime/SttApprove', {
           params: {
@@ -115,7 +115,12 @@ export default {
         .then(res => {
           this.countRequire = res.data
         })
-    }
+    },
+    logOut () {      
+      this.$cookies.remove('token')
+      this.$cookies.remove('userData')
+      this.$router.push('/dang-nhap')
+    },
   },
   created () {
     this.loadData()

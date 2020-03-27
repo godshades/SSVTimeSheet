@@ -43,7 +43,7 @@ router.beforeEach((to, from, next) => {
     } else {
       let permission = Vue.$cookies.get('userData').typeId
       if (to.matched.some(record => record.meta.is_admin)) {
-        if (permission === 4 || permission === 5) {
+        if (permission === 2 || permission === 3) {
           next()
         } else {
           next({ name: 'home' })

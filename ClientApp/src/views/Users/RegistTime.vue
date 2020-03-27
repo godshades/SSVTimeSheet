@@ -65,7 +65,7 @@ export default {
     },
     getDataRegist () {
       let userId = this.$cookies.get('userData').userId
-      console.log('created -> userId', userId)
+      // console.log('created -> userId', userId)
 
       this.axios({
         method: 'get',
@@ -74,14 +74,20 @@ export default {
           userId: userId
         }
       }).then(res => {
+        // console.log('getDataRegist -> res.data', res.data)
         for (let key in res.data) {
-          // console.log('created -> key', key)
           if (res.data.hasOwnProperty(key)) {
+            let color = ''
+            if (res.data[key].status === 2) {
+              color = 'red'
+            } else if (res.data[key].status === 4) {
+              color = '#28a745'
+            } else color = '#ffc107'
             this.event.push({
               title: res.data[key].classifyTime === 1 ? 'Làm thêm' : 'Xin nghỉ',
               start: res.data[key].startTime,
               end: res.data[key].endTime,
-              color: '#28a745'
+              color: color
             })
           }
         }

@@ -5,8 +5,14 @@ using System.Threading.Tasks;
 
 namespace SSVTimeSheet.Model
 {
-    public class SettingsModel
+    public class MySettingsConfiguration
     {
         public string ConnectionStringId { get; set; }
+        public Jwt Jwt { get; set; }
+    }
+    public class Jwt
+    {
+        public string Key { get; set; }
+        public string Issuer { get; set; }
     }
 }

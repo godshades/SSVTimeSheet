@@ -9,18 +9,18 @@ namespace SSVTimeSheet.Model
 {
     public class SUserModel
     {
-        private readonly SettingsModel _setting;
+        private readonly MySettingsConfiguration _config;
 
-        public SUserModel(SettingsModel settings)
+        public SUserModel(MySettingsConfiguration config)
         {
-            _setting = settings;
+            _config = config;
         }
        
-        private SUser GetSUser(string id, string pass)
+        public SUser GetSUser(string id, string pass)
         {
             SUser user = new SUser();
             string sqlSelect = "Select * from SUser where UserId = @UserId and Password = @Password";
-            using(var con = new SqlConnection(_setting.ConnectionStringId))
+            using(var con = new SqlConnection(_config.ConnectionStringId))
             {
                 user = con.QueryFirstOrDefault<SUser>(sqlSelect, new { UserId = id, Password = pass });
             }

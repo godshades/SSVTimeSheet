@@ -14,7 +14,7 @@ namespace SSVTimeSheet.Models
             using (sqlConnect = new SqlConnection(conn))
             {
                 sqlConnect.Open();
-                cmd = new SqlCommand("SELECT * , (Select LeadUser From dbo.SUser where UserId = 'VN0022') as ManagerUser FROM dbo.SUser WHERE UserId='" + UserId + "' AND Password='" + Password + "'", sqlConnect);
+                cmd = new SqlCommand("SELECT * FROM dbo.SUser WHERE UserId='" + UserId + "' AND Password='" + Password + "'", sqlConnect);
                 SqlDataReader reader = cmd.ExecuteReader();
                 SUser s = new SUser();
                 try
@@ -23,8 +23,7 @@ namespace SSVTimeSheet.Models
                     {
                         while (reader.Read())
                         {
-                            s.UserId = reader["UserId"].ToString();
-                            //s.Password = reader["Password"].ToString();
+                            s.UserId = reader["UserId"].ToString();                           
                             s.Name = reader["Name"].ToString();
                             s.LeadUser = reader["LeadUser"].ToString();
                             s.TypeId = reader["TypeId"] == null || reader["TypeId"].ToString() == string.Empty ? 0 : int.Parse(reader["TypeId"].ToString());
@@ -63,9 +62,15 @@ namespace SSVTimeSheet.Models
         {
             using (sqlConnect = new SqlConnection(conn))
             {
+                int leadId = 0;
+                if (typeId == 2)
+                {
+                    leadId = 3;
+                }
+                else leadId = 2;
                 sqlConnect.Open();
-                cmd = new SqlCommand("SELECT [UserId], [Name] FROM dbo.SUser WHERE [TypeId] ='" + (typeId + 1) + "'", sqlConnect);
-                // Nếu là User(type =1 thì query leader(type = 2), Nếu là leader(type = 2) query manager(type = 3)
+                cmd = new SqlCommand("SELECT [UserId], [Name] FROM dbo.SUser WHERE [TypeId] ='" + leadId + "'", sqlConnect);
+                // Nếu là User(type != 2 thì query leader(type = 2), Nếu là leader(type = 2) query manager(type = 3)
                 SqlDataReader reader = cmd.ExecuteReader();
                 List<SUser> GetLeader = new List<SUser>();
                 SUser s = null;

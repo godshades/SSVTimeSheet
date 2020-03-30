@@ -9,102 +9,100 @@ namespace SSVTimeSheet.Models
         SqlCommand cmd;
         SqlConnection sqlConnect;
         private string conn = "Server=192.168.10.220;Database=TimeSheet;User Id=waosa;Password=sqlSaPass;";
-        public SUser CheckLogin(string UserId , string Password)
+        public SUser CheckLogin(string UserId, string Password)
         {
-            sqlConnect = new SqlConnection(conn);
-            sqlConnect.Open();
-            cmd = new SqlCommand("SELECT * FROM dbo.SUser WHERE UserId='" + UserId + "' AND Password='" + Password + "'", sqlConnect);
-            SqlDataReader reader = cmd.ExecuteReader();
-            SUser s = new SUser();
-            try
+            using (sqlConnect = new SqlConnection(conn))
             {
-                if (reader.HasRows)
+                sqlConnect.Open();
+                cmd = new SqlCommand("SELECT * , (Select LeadUser From dbo.SUser where UserId = 'VN0022') as ManagerUser FROM dbo.SUser WHERE UserId='" + UserId + "' AND Password='" + Password + "'", sqlConnect);
+                SqlDataReader reader = cmd.ExecuteReader();
+                SUser s = new SUser();
+                try
                 {
-                    while (reader.Read())
+                    if (reader.HasRows)
                     {
-                        s.UserId = reader["UserId"].ToString();
-                        //s.Password = reader["Password"].ToString();
-                        s.Name = reader["Name"].ToString();
-                        s.LeadUser = reader["LeadUser"].ToString();
-                        s.TypeId = reader["TypeId"] == null || reader["TypeId"].ToString() == string.Empty ? 0 : int.Parse(reader["TypeId"].ToString());
-                        s.CreateDate = reader["CreateDate"] == null || reader["CreateDate"].ToString() == string.Empty ? DateTime.Now : DateTime.Parse(reader["CreateDate"].ToString());
-                        s.Birthday = reader["Birthday"] == null || reader["Birthday"].ToString() == string.Empty ? DateTime.Now : DateTime.Parse(reader["Birthday"].ToString());
-                        s.Email = reader["Email"].ToString();
-                        s.TelNo = reader["TelNo"].ToString();
-                        s.RestDay = reader["RestDay"] == null || reader["RestDay"].ToString() == string.Empty ? 0 : int.Parse(reader["RestDay"].ToString());
-                        s.DelFlg = reader["DelFlg"] == null || reader["DelFlg"].ToString() == string.Empty ? false : bool.Parse(reader["DelFlg"].ToString());
-                    }                    
-                    return s;
+                        while (reader.Read())
+                        {
+                            s.UserId = reader["UserId"].ToString();
+                            //s.Password = reader["Password"].ToString();
+                            s.Name = reader["Name"].ToString();
+                            s.LeadUser = reader["LeadUser"].ToString();
+                            s.TypeId = reader["TypeId"] == null || reader["TypeId"].ToString() == string.Empty ? 0 : int.Parse(reader["TypeId"].ToString());
+                            s.CreateDate = reader["CreateDate"] == null || reader["CreateDate"].ToString() == string.Empty ? DateTime.Now : DateTime.Parse(reader["CreateDate"].ToString());
+                            s.Birthday = reader["Birthday"] == null || reader["Birthday"].ToString() == string.Empty ? DateTime.Now : DateTime.Parse(reader["Birthday"].ToString());
+                            s.Email = reader["Email"].ToString();
+                            s.TelNo = reader["TelNo"].ToString();
+                            s.RestDay = reader["RestDay"] == null || reader["RestDay"].ToString() == string.Empty ? 0 : int.Parse(reader["RestDay"].ToString());
+                            s.DelFlg = reader["DelFlg"] == null || reader["DelFlg"].ToString() == string.Empty ? false : bool.Parse(reader["DelFlg"].ToString());
+                        }
+                        return s;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
-                else
+                catch
                 {
+
                     return null;
                 }
-            }
-            catch
-            {
-
-                return null;
-            }
-            finally
-            {
-
-                if (reader != null)
+                finally
                 {
-                    reader.Close();
-                }
-                if (sqlConnect != null)
-                {
-                    sqlConnect.Close();
+
+                    if (reader != null)
+                    {
+                        reader.Close();
+                    }
+
                 }
             }
 
         }
         public List<SUser> GetAllLeader(int typeId)
-        {            
-            sqlConnect = new SqlConnection(conn);
-            sqlConnect.Open();
-            cmd = new SqlCommand("SELECT [UserId], [Name] FROM dbo.SUser WHERE [TypeId] ='" + (typeId + 1) + "'", sqlConnect);
-            // Nếu là User(type =1 thì query leader(type = 2), Nếu là leader(type = 2) query manager(type = 3)
-            SqlDataReader reader = cmd.ExecuteReader();
-            List<SUser> GetLeader = new List<SUser>();
-            SUser s = null;
-           
-            try
+        {
+            using (sqlConnect = new SqlConnection(conn))
             {
-                if (reader.HasRows)
+                sqlConnect.Open();
+                cmd = new SqlCommand("SELECT [UserId], [Name] FROM dbo.SUser WHERE [TypeId] ='" + (typeId + 1) + "'", sqlConnect);
+                // Nếu là User(type =1 thì query leader(type = 2), Nếu là leader(type = 2) query manager(type = 3)
+                SqlDataReader reader = cmd.ExecuteReader();
+                List<SUser> GetLeader = new List<SUser>();
+                SUser s = null;
+
+                try
                 {
-                    while (reader.Read())
+                    if (reader.HasRows)
                     {
-                        s = new SUser();
-                        s.UserId = reader["UserId"].ToString();                        
-                        s.Name = reader["Name"].ToString();
-                        GetLeader.Add(s);
+                        while (reader.Read())
+                        {
+                            s = new SUser();
+                            s.UserId = reader["UserId"].ToString();
+                            s.Name = reader["Name"].ToString();
+                            GetLeader.Add(s);
+                        }
+                        return GetLeader;
                     }
-                    return GetLeader;
+                    else
+                    {
+                        return null;
+                    }
                 }
-                else
+                catch
                 {
+
                     return null;
                 }
-            }
-            catch
-            {
-
-                return null;
-            }
-            finally
-            {
-
-                if (reader != null)
+                finally
                 {
-                    reader.Close();
-                }
-                if (sqlConnect != null)
-                {
-                    sqlConnect.Close();
+
+                    if (reader != null)
+                    {
+                        reader.Close();
+                    }
                 }
             }
-        }      
+        }
+        
     }
 }

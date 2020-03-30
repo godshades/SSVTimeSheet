@@ -104,7 +104,7 @@ export default {
   methods: {
     loadData () {
       let leaderId = this.$cookies.get('userData').userId
-      let sttapprove = this.$cookies.get('userData').typeId === 4 ? 1 : 3
+      let sttapprove = this.$cookies.get('userData').typeId === 2 ? 1 : 3
       this.axios
         .get('/api/RegistTime/SttApprove', {
           params: {

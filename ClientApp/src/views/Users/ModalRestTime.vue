@@ -25,9 +25,9 @@
             ></b-form-select>
           </b-form-group>
         </div>
-        <div v-if="classifySelected != 3">
+        <div v-if="classifySelected != 2">
           <div class="row">
-            <b-form-group class="col-md-6" label="Thời gian bắt đầu">
+            <b-form-group class="col-md-6" label="Giờ bắt đầu">
               <vue-timepicker
                 v-model.lazy="startTime"
                 :input-class="{
@@ -42,7 +42,7 @@
               >
               </vue-timepicker>
             </b-form-group>
-            <b-form-group class="col-md-6" label="Thời gian kết thúc">
+            <b-form-group class="col-md-6" label="Giờ kết thúc">
               <vue-timepicker
                 v-model.lazy="endTime"
                 :input-class="{
@@ -68,32 +68,6 @@
               <b-form-input :value="dataDate" disabled></b-form-input>
             </b-form-group>
           </div>
-          <div v-if="classifySelected == 2 || classifySelected == 3">
-            <b-form-group label="Lý do nghỉ" label-for="Reason">
-              <b-form-select
-                v-model="reasonSelected"
-                :options="reasonList"
-                :state="validateRequired(reasonSelected)"
-              ></b-form-select>
-            </b-form-group>
-            <div class="row">
-              <b-form-group class="col-md-6" label="Họ tên người liên hệ">
-                <b-form-input
-                  v-model="nameContact"
-                  :state="validateRequired(nameContact)"
-                ></b-form-input>
-              </b-form-group>
-              <b-form-group class="col-md-6" label="SĐT người liên hệ">
-                <b-form-input
-                  v-model.lazy="phoneContact"
-                  :state="
-                    validateRequired(phoneContact) &&
-                      checkPhone(phoneContact) == true
-                  "
-                ></b-form-input>
-              </b-form-group>
-            </div>
-          </div>
           <b-form-group label="Ghi chú">
             <b-form-textarea
               v-model="noteTime"
@@ -104,7 +78,7 @@
           </b-form-group>
 
           <b-button
-            @click="sendTime()"
+            @click="sendWorkTime()"
             pill
             variant="success"
             class="ml-auto d-block"
@@ -112,7 +86,36 @@
           >
         </div>
       </div>
-      <div v-if="classifySelected == 3">
+      <div v-if="classifySelected == 2">
+        <div class="row">
+          <b-form-group class="col-md-6" label="Giờ bắt đầu">
+            <vue-timepicker
+              v-model.lazy="startTime"
+              :input-class="{
+                'custom-select': true,
+                'is-invalid':
+                  !validateRequired(startTime) || handleShortTime == 0,
+                'is-valid': validateRequired(startTime) && handleShortTime != 0
+              }"
+              hide-clear-button
+              placeholder="Chọn giờ"
+            >
+            </vue-timepicker>
+          </b-form-group>
+          <b-form-group class="col-md-6" label="Giờ kết thúc">
+            <vue-timepicker
+              v-model.lazy="endTime"
+              :input-class="{
+                'custom-select': true,
+                'is-invalid':
+                  !validateRequired(endTime) || handleShortTime == 0,
+                'is-valid': validateRequired(endTime) && handleShortTime != 0
+              }"
+              hide-clear-button
+              placeholder="Chọn giờ"
+            ></vue-timepicker>
+          </b-form-group>
+        </div>
         <div class="row">
           <b-form-group class="col-md-6" label="Ngày bắt đầu">
             <b-form-datepicker
@@ -124,7 +127,7 @@
           <b-form-group class="col-md-6" label="Ngày kết thúc">
             <b-form-datepicker
               v-model="endDate"
-              :state="validateRequired(endDate) && handleLongTime != 0"
+              :state="validateRequired(endDate) && handleLongTime !== '0'"
               today-button
               reset-button
               close-button
@@ -133,35 +136,36 @@
             ></b-form-datepicker>
           </b-form-group>
         </div>
-        <b-form-group label="Số ngày nghỉ">
-          <b-form-input v-model.lazy="handleLongTime" disabled></b-form-input>
-        </b-form-group>
-        <div v-if="classifySelected == 2 || classifySelected == 3">
-          <b-form-group label="Lý do nghỉ" label-for="Reason">
+        <div class="row">
+          <b-form-group class="col-md-6" label="Số ngày nghỉ">
+            <b-form-input v-model.lazy="handleLongTime" disabled></b-form-input>
+          </b-form-group>
+          <b-form-group class="col-md-6" label="Lý do nghỉ" label-for="Reason">
             <b-form-select
               v-model="reasonSelected"
               :options="reasonList"
               :state="validateRequired(reasonSelected)"
             ></b-form-select>
           </b-form-group>
-          <div class="row">
-            <b-form-group class="col-md-6" label="Họ tên người liên hệ">
-              <b-form-input
-                v-model="nameContact"
-                :state="validateRequired(nameContact)"
-              ></b-form-input>
-            </b-form-group>
-            <b-form-group class="col-md-6" label="SĐT người liên hệ">
-              <b-form-input
-                v-model.lazy="phoneContact"
-                :state="
-                  validateRequired(phoneContact) &&
-                    checkPhone(phoneContact) == true
-                "
-              ></b-form-input>
-            </b-form-group>
-          </div>
         </div>
+        <div class="row">
+          <b-form-group class="col-md-6" label="Họ tên người liên hệ">
+            <b-form-input
+              v-model="nameContact"
+              :state="validateRequired(nameContact)"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group class="col-md-6" label="SĐT người liên hệ">
+            <b-form-input
+              v-model.lazy="phoneContact"
+              :state="
+                validateRequired(phoneContact) &&
+                  checkPhone(phoneContact) == true
+              "
+            ></b-form-input>
+          </b-form-group>
+        </div>
+
         <b-form-group label="Ghi chú">
           <b-form-textarea
             v-model="noteTime"
@@ -171,7 +175,7 @@
           ></b-form-textarea>
         </b-form-group>
         <b-button
-          @click="sendDate()"
+          @click="sendRestTime()"
           pill
           variant="success"
           class="ml-auto d-block"
@@ -197,33 +201,15 @@ export default {
   data () {
     return {
       leadSelected: null,
-      LeaderSelect: [
-
-      ],
+      LeaderSelect: [],
       classifySelected: null,
       classifyTime: [
         { value: null, text: 'Chọn', disabled: true },
         { value: 1, text: 'Làm thêm' },
-        { value: 2, text: 'Xin nghỉ' },
-        { value: 3, text: 'Xin nghỉ dài ngày' }
+        { value: 2, text: 'Xin nghỉ' }
       ],
       reasonSelected: 0,
-      reasonList: [
-        { value: 0, text: 'Chọn', disabled: true },
-        { value: 1, text: 'Nghỉ phép có lương' },
-        { value: 2, text: 'Nghỉ bù' },
-        { value: 3, text: 'Nghỉ kinh nguyệt' },
-        { value: 4, text: 'Nghỉ việc hiếu' },
-        { value: 5, text: 'Nghỉ không phép' },
-        { value: 6, text: 'Đi muộn' },
-        { value: 7, text: 'Về sớm' },
-        { value: 8, text: 'Ra ngoài vì việc riêng' },
-        { value: 9, text: 'Đi công tác' },
-        { value: 10, text: 'Đi làm ngày nghỉ' },
-        { value: 11, text: 'Kết hôn' },
-        { value: 12, text: 'Nghỉ sinh' },
-        { value: 13, text: 'Khác( Viết vào ghi chú )' }
-      ],
+      reasonList: [{ value: 0, text: 'Chọn', disabled: true }],
       nameContact: '',
       phoneContact: '',
       startTime: '',
@@ -237,23 +223,28 @@ export default {
   created () {
     this.loadData()
   },
+  watch: {
+    dataDate: function () {
+      this.endDate = this.dataDate
+    }
+  },
   methods: {
     loadData () {
-      let typeId = this.$cookies.get('userData').typeId      
-      let leadUser = this.$cookies.get('userData').leadUser      
+      let typeId = this.$cookies.get('userData').typeId
+      let leadUser = this.$cookies.get('userData').leadUser
       this.axios
         .get('/api/RegistTime/GetAllLeader', {
           params: {
             typeId: typeId
           }
         })
-        .then(res => {          
+        .then(res => {
           for (const key in res.data) {
-            if (res.data.hasOwnProperty(key)) {              
-              if(res.data[key].userId === leadUser){
+            if (res.data.hasOwnProperty(key)) {
+              if (res.data[key].userId === leadUser) {
                 this.leadSelected = leadUser
               }
-              this.LeaderSelect.push({                                            
+              this.LeaderSelect.push({
                 value: res.data[key].userId,
                 text: res.data[key].name
               })
@@ -263,6 +254,16 @@ export default {
         .catch(err => {
           console.error(err)
         })
+      this.axios.get('/api/RegistTime/GetReason').then(res => {
+        for (const key in res.data) {
+          if (res.data.hasOwnProperty(key)) {
+            this.reasonList.push({
+              value: res.data[key].typeId,
+              text: res.data[key].typeName
+            })
+          }
+        }
+      })
     },
     validateRequired (name) {
       if (name != null && name !== '' && name != 0) {
@@ -288,17 +289,13 @@ export default {
         })
         .catch(err => {})
     },
-    sendTime () {
+    sendWorkTime () {
       let data = {
         UserId: this.$cookies.get('userData').userId,
         LeaderId: this.leadSelected,
         ClassifyTime: this.classifySelected,
         StartTime: new Date(this.dataDate + ',' + this.startTime + ' UTC'),
         EndTime: new Date(this.dataDate + ',' + this.endTime + ' UTC'),
-        // Khởi tạo ngày tháng rồi cộng 2 chuỗi string ngày với giờ lại
-        ReasonId: this.reasonSelected,
-        NameContact: this.nameContact,
-        PhoneContact: this.phoneContact,
         Time: this.time,
         Note: this.noteTime
       }
@@ -340,20 +337,20 @@ export default {
       this.sendAxiosTime(requestUrl, data)
       // }
     },
-    sendDate () {
+    sendRestTime () {
       let data = {
         UserId: this.$cookies.get('userData').userId,
         LeaderId: this.leadSelected,
         ClassifyTime: this.classifySelected,
-        StartTime: new Date(this.dataDate + ' UTC'),
-        EndTime: new Date(this.endDate + ' UTC'),
+        StartTime: new Date(this.dataDate + ',' + this.startTime + ' UTC'),
+        EndTime: new Date(this.endDate + ',' + this.endTime + ' UTC'),
+        // Khởi tạo ngày tháng rồi cộng 2 chuỗi string ngày với giờ lại
         ReasonId: this.reasonSelected,
         NameContact: this.nameContact,
         PhoneContact: this.phoneContact,
         Time: this.restDate,
         Note: this.noteTime
       }
-      debugger
       let requestUrl = '/api/RegistTime/InsertTime'
       if (
         this.leadSelected === null ||
@@ -364,7 +361,7 @@ export default {
           'Vui lòng chọn đầy đủ các trường',
           'Xin kiểm tra lại !!!'
         )
-      } else if (this.handleLongTime === 0) {
+      } else if (this.handleLongTime === '0') {
         this.$toastr.error(
           'Ngày kết thúc phải lớn hơn ngày bắt đầu',
           'Xin kiểm tra lại !!!'
@@ -405,14 +402,15 @@ export default {
       return this.time
     },
     handleLongTime: function () {
-      this.restDate =
+      let handleDate =
         (new Date(this.endDate) - new Date(this.dataDate)) /
         (1000 * 60 * 60 * 24)
       // khởi tạo ngày bắt đầu và ngày kết thúc
       // sau khi trừ cho nhau thì kết quả trả về miliseconds
       // convert sang thành ngày bằng cách chia cho (1000 * 60 * 60 * 24)
-      if (isNaN(this.restDate) || this.restDate <= 0) {
-        return 0
+      this.restDate = handleDate + this.time
+      if (isNaN(this.restDate) || this.restDate < 0) {
+        return '0'
       } else {
         return this.restDate
       }

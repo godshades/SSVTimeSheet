@@ -6,14 +6,10 @@
         :plugins="calendarPlugins"
         :header="{
           left: 'title',
-          center: 'dayGridMonth,timeGridWeek,timeGridDay,List',
           right: 'prev today next'
         }"
         :buttonText="{
-          today: 'Hôm nay',
-          month: 'Tháng',
-          week: 'Tuần',
-          day: 'Ngày'
+          today: 'Hôm nay'
         }"
         :events="event"
         @dateClick="handleDateClick"

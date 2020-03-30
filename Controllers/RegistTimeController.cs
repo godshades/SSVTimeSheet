@@ -50,5 +50,11 @@ namespace SSVTimeSheet.Controllers
             List<SUser> result = new SUserDao().GetAllLeader(typeId);
             return Json(result);
         }
+        [HttpGet("GetReason")]
+        public JsonResult GetReason()
+        {
+            List<SType> result = new RegistTimeDao().GetReason();
+            return Json(result);
+        }
     }
 }

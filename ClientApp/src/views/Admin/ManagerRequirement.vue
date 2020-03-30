@@ -74,14 +74,14 @@ export default {
   data () {
     return {
       requirementTime: [],
-      approYes: this.$cookies.get('userData').typeId === 4 ? 3 : 4
+      approYes: this.$cookies.get('userData').typeId === 2 ? 3 : 4
       // Nếu là leader thì trạng thái đồng ý sẽ là 3|| còn manager thì sẽ là 4
     }
   },
   methods: {
     getRequirementTime () {
       let leaderid = this.$cookies.get('userData').userId
-      let status = this.$cookies.get('userData').typeId === 4 ? 1 : 3
+      let status = this.$cookies.get('userData').typeId === 2 ? 1 : 3
       // lấy quyền người dùng
       this.axios
         .get('/api/RegistTime/GetRequirementTime', {

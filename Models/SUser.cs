@@ -11,6 +11,8 @@ namespace SSVTimeSheet.Models
         public string Password { get; set; }
         public string Name { get; set; }
         public string LeadUser { get; set; }
+        public string ManagerUser { get; set; }
+
         public int TypeId { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime Birthday { get; set; }

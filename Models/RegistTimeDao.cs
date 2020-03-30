@@ -209,5 +209,47 @@ namespace SSVTimeSheet.Models
             Int32 result = (Int32)cmd.ExecuteScalar();           
             return result;
         }
+        public List<SType> GetReason()
+        {
+            using (sqlConnect = new SqlConnection(conn))
+            {
+                sqlConnect.Open();
+                cmd = new SqlCommand("SELECT [TypeId],[TypeName] FROM [dbo].[SType] Where GroupId = 3", sqlConnect);
+                SqlDataReader reader = cmd.ExecuteReader();
+                SType t = null;
+                List<SType> reason = new List<SType>();
+                try
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            t = new SType();
+                            t.TypeId = int.Parse(reader["TypeId"].ToString());
+                            t.TypeName = reader["TypeName"].ToString();
+                            reason.Add(t);
+                        }
+                        return reason;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                catch
+                {
+
+                    return null;
+                }
+                finally
+                {
+
+                    if (reader != null)
+                    {
+                        reader.Close();
+                    }
+                }
+            }
+        }
     }
 }

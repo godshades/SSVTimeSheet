@@ -12,6 +12,7 @@ namespace SSVTimeSheet.Models
         public string UserName { get; set; }
         public string LeaderId { get; set; }
         public int ClassifyTime { get; set; }
+        public string ClassifyName { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public string ReasonName { get; set; }
@@ -21,6 +22,7 @@ namespace SSVTimeSheet.Models
         public float Time { get; set; }        
         public string Note { get; set; }
         public int Status { get; set; }
+        public string StatusName { get; set; }
 
 
 

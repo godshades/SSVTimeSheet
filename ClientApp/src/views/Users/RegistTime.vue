@@ -13,6 +13,7 @@
         }"
         :events="event"
         @dateClick="handleDateClick"
+        @eventClick="handleEventClick"
       />
     </b-container>
     <ModalRestTime
@@ -40,7 +41,8 @@ export default {
         ListPlugin
       ],
       getDateClick: '',
-      event: []
+      event: [],
+      registDetail: null
     }
   },
   components: {
@@ -48,6 +50,22 @@ export default {
     ModalRestTime
   },
   methods: {
+    handleEventClick (e) {      
+      e.jsEvent.preventDefault()
+      let registId = parseInt(e.event.id)
+      console.log('handleEventClick -> registId', registId)
+      this.axios.get('/api/RegistTime/GetRegistDetail', {
+        params: {
+          registId: registId
+        }
+      })
+        .then(res => {
+          console.log(res.data)
+          this.registDetail = res.data
+          console.log('handleEventClick -> registDetail', this.registDetail.leaderId)
+          // truyền props data trên vào component con rồi hiển thị lên trên popup        
+        })
+    },
     handleDateClick (e) {
       this.$bvModal.show('register-time')
       // console.log("handleDateClick -> e.dateStr", e.dateStr)
@@ -80,6 +98,7 @@ export default {
               color = '#28a745'
             } else color = '#ffc107'
             this.event.push({
+              id: res.data[key].id,
               title: res.data[key].classifyTime === 1 ? 'Làm thêm' : 'Xin nghỉ',
               start: res.data[key].startTime,
               end: res.data[key].endTime,
@@ -87,7 +106,6 @@ export default {
             })
           }
         }
-        // console.log('created -> this.event', this.event)
       })
     }
   },
@@ -99,4 +117,9 @@ export default {
 <style lang="scss" scoped>
 @import "~@fullcalendar/core/main.css";
 @import "~@fullcalendar/daygrid/main.css";
+</style>
+<style lang="css">
+a:not([href]):hover {
+  cursor: pointer;
+}
 </style>

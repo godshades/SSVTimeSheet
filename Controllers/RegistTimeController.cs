@@ -56,5 +56,11 @@ namespace SSVTimeSheet.Controllers
             List<SType> result = new RegistTimeDao().GetReason();
             return Json(result);
         }
+        [HttpGet("GetRegistDetail")]
+        public JsonResult GetRegistDetail(int registId)
+        {
+            RegistTime result = new RegistTimeDao().GetRegistDetail(registId);
+            return Json(result);
+        }
     }
 }

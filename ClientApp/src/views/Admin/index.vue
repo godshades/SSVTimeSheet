@@ -15,7 +15,7 @@
                 class="img-fluid rounded-circle mCS_img_loaded"
               />
               <h2 class="h5">{{userName}}</h2>
-              <span>Leader</span>
+              <span>{{position}}</span>
             </div>
             <!-- Small Brand information, appears on minimized sidebar-->
             <div class="sidenav-header-logo">
@@ -95,7 +95,8 @@ export default {
   data () {
     return {
       countRequire: '',
-      userName: this.$cookies.get('userData').name
+      userName: this.$cookies.get('userData').name,
+      position: this.$cookies.get('userData').typeId === 2 ? 'Leader' : 'Manager'
     }
   },
   components: {

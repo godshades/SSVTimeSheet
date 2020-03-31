@@ -20,14 +20,14 @@ namespace SSVTimeSheet.Models
             sqlConnect.Open();
             cmd = new SqlCommand("Sp_InsertTime", sqlConnect);
             cmd.CommandType = CommandType.StoredProcedure;
-            
+
             try
             {
                 cmd.Parameters.AddWithValue("@UserId", data.UserId.ToString());
                 cmd.Parameters.AddWithValue("@LeaderId", data.LeaderId.ToString());
                 cmd.Parameters.AddWithValue("@ClassifyTime", data.ClassifyTime.ToString());
                 cmd.Parameters.AddWithValue("@StartTime", data.StartTime.ToString());
-                cmd.Parameters.AddWithValue("@EndTime", data.EndTime.ToString());               
+                cmd.Parameters.AddWithValue("@EndTime", data.EndTime.ToString());
                 cmd.Parameters.AddWithValue("@Time", data.Time.ToString());
                 cmd.Parameters.AddWithValue("@ReasonId", data.ReasonId.ToString());
                 cmd.Parameters.AddWithValue("@NameContact", data.NameContact == null || data.NameContact == string.Empty ? "Không" : data.NameContact.ToString());
@@ -47,7 +47,7 @@ namespace SSVTimeSheet.Models
             }
 
 
-        }       
+        }
         public List<RegistTime> GetTimeByUserId(string userId)
         {
             sqlConnect = new SqlConnection(conn);
@@ -55,23 +55,18 @@ namespace SSVTimeSheet.Models
             cmd = new SqlCommand("SELECT * FROM dbo.SRegistTime WHERE UserId ='" + userId + "'", sqlConnect);
             SqlDataReader reader = cmd.ExecuteReader();
             List<RegistTime> GetAll = new List<RegistTime>();
-            RegistTime re = null;            
+            RegistTime re = null;
             try
             {
                 if (reader.HasRows)
                 {
-                     while (reader.Read())
+                    while (reader.Read())
                     {
                         re = new RegistTime();
-                        re.LeaderId = reader["LeaderId"].ToString();
+                        re.Id = int.Parse(reader["Id"].ToString());
                         re.ClassifyTime = int.Parse(reader["ClassifyTime"].ToString());
                         re.StartTime = DateTime.Parse(reader["StartTime"].ToString());
                         re.EndTime = DateTime.Parse(reader["EndTime"].ToString());
-                        re.Time = float.Parse(reader["Time"].ToString());
-                        re.ReasonId = int.Parse(reader["ReasonId"].ToString());
-                        re.NameContact = reader["NameContact"].ToString();
-                        re.PhoneContact = reader["PhoneContact"].ToString();
-                        re.Note =  reader["Note"].ToString();
                         re.Status = int.Parse(reader["Status"].ToString());
                         GetAll.Add(re);
                     }
@@ -104,10 +99,11 @@ namespace SSVTimeSheet.Models
         public List<RegistTime> GetRequirementTime(string leaderId, int status)
         {
             string nameQuery = "";
-            if(status == 1)
+            if (status == 1)
             {
                 nameQuery = "LeaderId";
-            }else if(status == 3)
+            }
+            else if (status == 3)
             {
                 nameQuery = "ManagerId";
             }
@@ -115,7 +111,7 @@ namespace SSVTimeSheet.Models
             // status bằng 3 thì truy vấn cho manager
             sqlConnect = new SqlConnection(conn);
             sqlConnect.Open();
-            cmd = new SqlCommand("SELECT *,(SELECT  TypeName FROM SType t where r.ReasonId = t.TypeId and GroupId = '3') as ReasonName FROM dbo.SRegistTime r JOIN dbo.SUser u ON r.UserId = u.UserId WHERE [Status] = '" + status +"' AND "+ nameQuery + " = '"+ leaderId + "'", sqlConnect);
+            cmd = new SqlCommand("SELECT *,(SELECT  TypeName FROM SType t where r.ReasonId = t.TypeId and GroupId = '3') as ReasonName FROM dbo.SRegistTime r JOIN dbo.SUser u ON r.UserId = u.UserId WHERE [Status] = '" + status + "' AND " + nameQuery + " = '" + leaderId + "'", sqlConnect);
             SqlDataReader reader = cmd.ExecuteReader();
             List<RegistTime> GetAll = new List<RegistTime>();
             RegistTime re = null;
@@ -127,11 +123,11 @@ namespace SSVTimeSheet.Models
                     {
                         re = new RegistTime();
                         re.Id = int.Parse(reader["Id"].ToString());
-                        re.UserName = reader["Name"].ToString();                        
+                        re.UserName = reader["Name"].ToString();
                         re.ClassifyTime = int.Parse(reader["ClassifyTime"].ToString());
                         re.StartTime = DateTime.Parse(reader["StartTime"].ToString());
                         re.EndTime = DateTime.Parse(reader["EndTime"].ToString());
-                        re.Time = float.Parse(reader["Time"].ToString());                       
+                        re.Time = float.Parse(reader["Time"].ToString());
                         re.ReasonName = reader["ReasonName"].ToString();
                         re.NameContact = reader["NameContact"].ToString();
                         re.PhoneContact = reader["PhoneContact"].ToString();
@@ -165,8 +161,58 @@ namespace SSVTimeSheet.Models
             }
 
         }
+        public RegistTime GetRegistDetail(int registId)
+        {
+            using(sqlConnect = new SqlConnection(conn))
+            {
+                string sub1 = ",(select T.TypeName from dbo.SType as T where T.TypeId = R.ReasonId and GroupId = '3')  as ReasonName";
+                string sub2 = ",(select T.TypeName from dbo.SType as T where T.TypeId = R.ClassifyTime and GroupId = '1') as ClassifyName";
+                string sub3 = ",(SELECT T.TypeName FROM SType as T WHERE T.TypeId = R.[Status] AND GroupId = '4') AS StatusName";
+                sqlConnect.Open();
+                cmd = new SqlCommand("SELECT * "+sub1+sub2+sub3+  " FROM [dbo].[SRegistTime] as R WHere Id= '" + registId  + "'", sqlConnect);
+                SqlDataReader reader = cmd.ExecuteReader();
+                RegistTime re = new RegistTime();
+                try
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {                                                     
+                            re.LeaderId = reader["LeaderId"].ToString();
+                            re.ClassifyName = reader["ClassifyName"].ToString();
+                            re.StartTime = DateTime.Parse(reader["StartTime"].ToString());
+                            re.EndTime = DateTime.Parse(reader["EndTime"].ToString());
+                            re.Time = float.Parse(reader["Time"].ToString());
+                            re.ReasonName = reader["ReasonName"].ToString();
+                            re.NameContact = reader["NameContact"].ToString();
+                            re.PhoneContact = reader["PhoneContact"].ToString();
+                            re.Note = reader["Note"].ToString();
+                            re.StatusName = reader["StatusName"].ToString();                           
+                        }
+                        return re;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                catch
+                {
+
+                    return null;
+                }
+                finally
+                {
+
+                    if (reader != null)
+                    {
+                        reader.Close();
+                    }                   
+                }
+            }
+        }
         public bool ApproveTime(int id, int status)
-        {            
+        {
             sqlConnect = new SqlConnection(conn);
             sqlConnect.Open();
             cmd = new SqlCommand("Sp_UpdateSttRegistTime", sqlConnect);
@@ -183,19 +229,19 @@ namespace SSVTimeSheet.Models
                 return false;
             }
             finally
-            {               
+            {
                 if (sqlConnect != null)
                 {
                     sqlConnect.Close();
                 }
             }
-        }        
+        }
         public int SttApprove(string leaderId, int sttapprove)
         {
             string nameQuery = "";
             if (sttapprove == 1)
             {
-                nameQuery = "LeaderId";                
+                nameQuery = "LeaderId";
             }
             else if (sttapprove == 3)
             {
@@ -205,8 +251,8 @@ namespace SSVTimeSheet.Models
             // status bằng 2 thì truy vấn cho manager
             sqlConnect = new SqlConnection(conn);
             sqlConnect.Open();
-            cmd = new SqlCommand("SELECT COUNT(*) FROM dbo.SRegistTime WHERE Status ='"+ sttapprove+"' AND "+ nameQuery +" = '" + leaderId + "'", sqlConnect);           
-            Int32 result = (Int32)cmd.ExecuteScalar();           
+            cmd = new SqlCommand("SELECT COUNT(*) FROM dbo.SRegistTime WHERE Status ='" + sttapprove + "' AND " + nameQuery + " = '" + leaderId + "'", sqlConnect);
+            Int32 result = (Int32)cmd.ExecuteScalar();
             return result;
         }
         public List<SType> GetReason()

@@ -64,7 +64,6 @@
               <a @click.stop.prevent="logOut()" href="#" class="nav-link">Đăng xuất</a>
             </li>
           </ul>
-
           <!-- SEARCH FORM -->
           <form class="form-inline ml-3">
             <div class="input-group input-group-sm">
@@ -117,11 +116,11 @@ export default {
           this.countRequire = res.data
         })
     },
-    logOut () {      
+    logOut () {
       this.$cookies.remove('token')
       this.$cookies.remove('userData')
       this.$router.push('/dang-nhap')
-    },
+    }
   },
   created () {
     this.loadData()

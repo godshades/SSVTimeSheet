@@ -20,6 +20,9 @@
       :dataDate="getDateClick"
       v-on:changComponent="refreshComponent"
     ></ModalRestTime>
+    <ModalDetailTime
+      :registDetail ="registDetail"
+    ></ModalDetailTime>
   </div>
 </template>
 
@@ -30,6 +33,7 @@ import TimeGridPlugin from '@fullcalendar/timegrid'
 import InteractionPlugin from '@fullcalendar/interaction'
 import ListPlugin from '@fullcalendar/list'
 import ModalRestTime from './ModalRestTime'
+import ModalDetailTime from './ModalDetailTime'
 export default {
   name: 'regist-time',
   data () {
@@ -47,24 +51,24 @@ export default {
   },
   components: {
     FullCalendar, // make the <FullCalendar> tag available
-    ModalRestTime
+    ModalRestTime,
+    ModalDetailTime
   },
   methods: {
-    handleEventClick (e) {      
-      e.jsEvent.preventDefault()
+    handleEventClick (e) {
       let registId = parseInt(e.event.id)
-      console.log('handleEventClick -> registId', registId)
-      this.axios.get('/api/RegistTime/GetRegistDetail', {
-        params: {
-          registId: registId
-        }
-      })
-        .then(res => {
-          console.log(res.data)
-          this.registDetail = res.data
-          console.log('handleEventClick -> registDetail', this.registDetail.leaderId)
-          // truyền props data trên vào component con rồi hiển thị lên trên popup        
-        })
+      console.log('handleEventClick -> registId', e)
+      // this.axios.get('/api/RegistTime/GetRegistDetail', {
+      //   params: {
+      //     registId: registId
+      //   }
+      // })
+      //   .then(res => {
+      //     console.log(res.data)
+      //     this.registDetail = res.data
+      //     console.log('handleEventClick -> registDetail', this.registDetail.leaderId)
+      //   })
+      this.$bvModal.show('detail-time')
     },
     handleDateClick (e) {
       this.$bvModal.show('register-time')

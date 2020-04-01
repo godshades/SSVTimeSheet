@@ -21,7 +21,11 @@
   </div>
 </template>
 
-<style></style>
+<style>
+.home{
+  padding-bottom: 100px;
+}
+</style>
 
 <script>
 // @ is an alias to /src

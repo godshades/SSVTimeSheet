@@ -168,8 +168,9 @@ namespace SSVTimeSheet.Models
                 string sub1 = ",(select T.TypeName from dbo.SType as T where T.TypeId = R.ReasonId and GroupId = '3')  as ReasonName";
                 string sub2 = ",(select T.TypeName from dbo.SType as T where T.TypeId = R.ClassifyTime and GroupId = '1') as ClassifyName";
                 string sub3 = ",(SELECT T.TypeName FROM SType as T WHERE T.TypeId = R.[Status] AND GroupId = '4') AS StatusName";
+                string sub4 = ",(select U.[Name] from dbo.SUser as U where U.UserId = R.LeaderId) as LeaderName";
                 sqlConnect.Open();
-                cmd = new SqlCommand("SELECT * "+sub1+sub2+sub3+  " FROM [dbo].[SRegistTime] as R WHere Id= '" + registId  + "'", sqlConnect);
+                cmd = new SqlCommand("SELECT * "+sub1+sub2+sub3+sub4+  " FROM [dbo].[SRegistTime] as R WHere Id= '" + registId  + "'", sqlConnect);
                 SqlDataReader reader = cmd.ExecuteReader();
                 RegistTime re = new RegistTime();
                 try
@@ -177,12 +178,16 @@ namespace SSVTimeSheet.Models
                     if (reader.HasRows)
                     {
                         while (reader.Read())
-                        {                                                     
+                        {
+                            re.Id = int.Parse(reader["Id"].ToString());
+                            re.LeaderName = reader["LeaderName"].ToString();
                             re.LeaderId = reader["LeaderId"].ToString();
+                            re.ClassifyTime = int.Parse(reader["ClassifyTime"].ToString());
                             re.ClassifyName = reader["ClassifyName"].ToString();
                             re.StartTime = DateTime.Parse(reader["StartTime"].ToString());
                             re.EndTime = DateTime.Parse(reader["EndTime"].ToString());
                             re.Time = float.Parse(reader["Time"].ToString());
+                            re.ReasonId = int.Parse(reader["ReasonId"].ToString());
                             re.ReasonName = reader["ReasonName"].ToString();
                             re.NameContact = reader["NameContact"].ToString();
                             re.PhoneContact = reader["PhoneContact"].ToString();

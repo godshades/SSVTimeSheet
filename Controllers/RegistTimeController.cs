@@ -62,5 +62,11 @@ namespace SSVTimeSheet.Controllers
             RegistTime result = new RegistTimeDao().GetRegistDetail(registId);
             return Json(result);
         }
+        [HttpPost("UpdateRegist")]
+        public JsonResult UpdateRegist(RegistTime data)
+        {
+            bool result = new RegistTimeDao().UpdateRegist(data);
+            return Json(data);
+        }
     }
 }

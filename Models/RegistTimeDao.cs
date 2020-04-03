@@ -302,5 +302,35 @@ namespace SSVTimeSheet.Models
                 }
             }
         }
+        public bool UpdateRegist(RegistTime data)
+        {
+            using(sqlConnect = new SqlConnection(conn))
+            {
+                sqlConnect.Open();
+                cmd = new SqlCommand("Sp_UpdateRegistTime", sqlConnect);
+                cmd.CommandType = CommandType.StoredProcedure;
+                try
+                {
+                    cmd.Parameters.AddWithValue("@Id", data.Id.ToString());
+                    cmd.Parameters.AddWithValue("@UserId", data.UserId.ToString());
+                    cmd.Parameters.AddWithValue("@LeaderId", data.LeaderId.ToString());
+                    cmd.Parameters.AddWithValue("@ClassifyTime", data.ClassifyTime.ToString());
+                    cmd.Parameters.AddWithValue("@StartTime", data.StartTime.ToString());
+                    cmd.Parameters.AddWithValue("@EndTime", data.EndTime.ToString());
+                    cmd.Parameters.AddWithValue("@Time", data.Time.ToString());
+                    cmd.Parameters.AddWithValue("@ReasonId", data.ReasonId.ToString());
+                    cmd.Parameters.AddWithValue("@NameContact", data.NameContact == null || data.NameContact == string.Empty ? "Không" : data.NameContact.ToString());
+                    cmd.Parameters.AddWithValue("@PhoneContact", data.PhoneContact == null || data.PhoneContact == string.Empty ? "Không" : data.PhoneContact.ToString());
+                    cmd.Parameters.AddWithValue("@Note", data.Note.ToString());
+                    cmd.Parameters.AddWithValue("@Status", 1); // Trạng thái chưa duyệt == 1, Không duyệt == 2,Lead đã duyệt ==3, manager duyệt = 4;
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }               
     }
 }

@@ -88,8 +88,8 @@ export default {
           params: {
             leaderId: leaderid,
             status: status
-            // nếu là leader(per == 4) thì nhận yêu cầu là chưa duyệt (1)
-            // còn nếu là manager (5) tức là khác 4 => thì nhận yêu cầu đã duyệt
+            // nếu là leader(per == 2) thì nhận yêu cầu là chưa duyệt (1)
+            // còn nếu là manager (3) tức là khác 2 => thì nhận yêu cầu đã duyệt
             // của leader (leader đã duyệt thì stt = 3)
           }
         })

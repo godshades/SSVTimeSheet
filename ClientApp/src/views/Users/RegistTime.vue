@@ -18,11 +18,12 @@
     </b-container>
     <ModalRestTime
       :dataDate="getDateClick"
-      v-on:changComponent="refreshComponent"
-    ></ModalRestTime>
-    <ModalDetailTime
       :registDetail ="registDetail"
-    ></ModalDetailTime>
+      :showPopup ="showPopup"
+      v-on:changComponent="refreshComponent"
+      v-on:showEdit="changeEdit"
+    ></ModalRestTime>
+
   </div>
 </template>
 
@@ -33,7 +34,6 @@ import TimeGridPlugin from '@fullcalendar/timegrid'
 import InteractionPlugin from '@fullcalendar/interaction'
 import ListPlugin from '@fullcalendar/list'
 import ModalRestTime from './ModalRestTime'
-import ModalDetailTime from './ModalDetailTime'
 export default {
   name: 'regist-time',
   data () {
@@ -46,32 +46,35 @@ export default {
       ],
       getDateClick: '',
       event: [],
-      registDetail: null
+      registDetail: null,
+      showPopup: 'regist'
     }
   },
   components: {
     FullCalendar, // make the <FullCalendar> tag available
-    ModalRestTime,
-    ModalDetailTime
+    ModalRestTime
   },
   methods: {
+    changeEdit () {
+      this.showPopup = 'edit'
+    },
     handleEventClick (e) {
       let registId = parseInt(e.event.id)
-      console.log('handleEventClick -> registId', e)
-      // this.axios.get('/api/RegistTime/GetRegistDetail', {
-      //   params: {
-      //     registId: registId
-      //   }
-      // })
-      //   .then(res => {
-      //     console.log(res.data)
-      //     this.registDetail = res.data
-      //     console.log('handleEventClick -> registDetail', this.registDetail.leaderId)
-      //   })
-      this.$bvModal.show('detail-time')
+      this.axios.get('/api/RegistTime/GetRegistDetail', {
+        params: {
+          registId: registId
+        }
+      })
+        .then(res => {
+          this.registDetail = res.data
+          this.showPopup = 'detail'
+          this.$bvModal.show('popup-time')
+        })
     },
     handleDateClick (e) {
-      this.$bvModal.show('register-time')
+      this.registDetail = null
+      this.showPopup = 'regist'
+      this.$bvModal.show('popup-time')
       // console.log("handleDateClick -> e.dateStr", e.dateStr)
       this.getDateClick = e.dateStr
       // console.log(this.getDateClick)

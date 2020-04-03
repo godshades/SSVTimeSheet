@@ -1,31 +1,97 @@
 <template>
   <div>
-    <b-modal id="register-time" hide-footer size="lg">
+    <b-modal id="popup-time" hide-footer size="lg">
       <div class="ss-title">
-        <h2 class="title">Đăng ký lịch tại công ty</h2>
+        <h2 class="title">{{ showTitle }}</h2>
       </div>
-      <div>
-        <div class="row">
-          <b-form-group
-            class="col-md-6"
-            label="Phân loại thời gian"
-            label-for="classifyTime"
-          >
-            <b-form-select
-              v-model="classifySelected"
-              :options="classifyTime"
-              :state="validateRequired(classifySelected)"
-            ></b-form-select>
-          </b-form-group>
-          <b-form-group class="col-md-6" label="Người nhận">
-            <b-form-select
-              v-model="leadSelected"
-              :options="LeaderSelect"
-              :state="validateRequired(leadSelected)"
-            ></b-form-select>
-          </b-form-group>
+      <div
+        id="register-time"
+        v-if="showPopup === 'regist' || showPopup === 'edit'"
+      >
+        <div>
+          <div class="row">
+            <b-form-group
+              class="col-md-6"
+              label="Phân loại thời gian"
+              label-for="classifyTime"
+            >
+              <b-form-select
+                v-model="classifySelected"
+                :options="classifyTime"
+                :state="validateRequired(classifySelected)"
+              ></b-form-select>
+            </b-form-group>
+            <b-form-group class="col-md-6" label="Người nhận">
+              <b-form-select
+                v-model="leadSelected"
+                :options="LeaderSelect"
+                :state="validateRequired(leadSelected)"
+              ></b-form-select>
+            </b-form-group>
+          </div>
+          <div v-if="classifySelected != 2">
+            <div class="row">
+              <b-form-group class="col-md-6" label="Giờ bắt đầu">
+                <vue-timepicker
+                  v-model.lazy="startTime"
+                  :input-class="{
+                    'custom-select': true,
+                    'is-invalid':
+                      !validateRequired(startTime) || handleShortTime == 0,
+                    'is-valid':
+                      validateRequired(startTime) && handleShortTime != 0
+                  }"
+                  hide-clear-button
+                  placeholder="Chọn giờ"
+                >
+                </vue-timepicker>
+              </b-form-group>
+              <b-form-group class="col-md-6" label="Giờ kết thúc">
+                <vue-timepicker
+                  v-model.lazy="endTime"
+                  :input-class="{
+                    'custom-select': true,
+                    'is-invalid':
+                      !validateRequired(endTime) || handleShortTime == 0,
+                    'is-valid':
+                      validateRequired(endTime) && handleShortTime != 0
+                  }"
+                  hide-clear-button
+                  placeholder="Chọn giờ"
+                ></vue-timepicker>
+              </b-form-group>
+            </div>
+            <div class="row">
+              <b-form-group class="col-md-6" label="Số ngày làm">
+                <b-form-input
+                  v-model.lazy="handleShortTime"
+                  disabled
+                ></b-form-input>
+              </b-form-group>
+
+              <b-form-group class="col-md-6" label="Ngày đăng ký làm">
+                <b-form-input :value="startDate" disabled></b-form-input>
+              </b-form-group>
+            </div>
+            <b-form-group label="Ghi chú">
+              <b-form-textarea
+                v-model="noteTime"
+                placeholder="Viết vào đây..."
+                rows="3"
+                max-rows="6"
+              ></b-form-textarea>
+            </b-form-group>
+
+            <b-button
+              @click="sendWorkTime()"
+              pill
+              variant="success"
+              class="ml-auto d-block"
+              >Gửi</b-button
+            >
+          </div>
         </div>
-        <div v-if="classifySelected != 2">
+        <div v-if="classifySelected == 2">
           <div class="row">
             <b-form-group class="col-md-6" label="Giờ bắt đầu">
               <vue-timepicker
@@ -57,17 +123,62 @@
             </b-form-group>
           </div>
           <div class="row">
-            <b-form-group class="col-md-6" label="Số ngày làm">
+            <b-form-group class="col-md-6" label="Ngày bắt đầu">
+              <b-form-datepicker
+                :value="startDate"
+                locale="vi"
+                disabled
+              ></b-form-datepicker>
+            </b-form-group>
+            <b-form-group class="col-md-6" label="Ngày kết thúc">
+              <b-form-datepicker
+                v-model="endDate"
+                :state="validateRequired(endDate) && handleLongTime !== '0'"
+                today-button
+                reset-button
+                close-button
+                locale="vi"
+                placeholder="Chọn ngày"
+              ></b-form-datepicker>
+            </b-form-group>
+          </div>
+          <div class="row">
+            <b-form-group class="col-md-6" label="Số ngày nghỉ">
               <b-form-input
-                v-model.lazy="handleShortTime"
+                v-model.lazy="handleLongTime"
                 disabled
               ></b-form-input>
             </b-form-group>
-
-            <b-form-group class="col-md-6" label="Ngày đăng ký làm">
-              <b-form-input :value="dataDate" disabled></b-form-input>
+            <b-form-group
+              class="col-md-6"
+              label="Lý do nghỉ"
+              label-for="Reason"
+            >
+              <b-form-select
+                v-model="reasonSelected"
+                :options="reasonList"
+                :state="validateRequired(reasonSelected)"
+              ></b-form-select>
             </b-form-group>
           </div>
+          <div class="row">
+            <b-form-group class="col-md-6" label="Họ tên người liên hệ">
+              <b-form-input
+                v-model="nameContact"
+                :state="validateRequired(nameContact)"
+              ></b-form-input>
+            </b-form-group>
+            <b-form-group class="col-md-6" label="SĐT người liên hệ">
+              <b-form-input
+                v-model.lazy="phoneContact"
+                :state="
+                  validateRequired(phoneContact) &&
+                    checkPhone(phoneContact) == true
+                "
+              ></b-form-input>
+            </b-form-group>
+          </div>
+
           <b-form-group label="Ghi chú">
             <b-form-textarea
               v-model="noteTime"
@@ -76,176 +187,86 @@
               max-rows="6"
             ></b-form-textarea>
           </b-form-group>
-
           <b-button
-            @click="sendWorkTime()"
+            v-if="showPopup === 'regist'"
+            @click="sendRestTime()"
             pill
             variant="success"
             class="ml-auto d-block"
             >Gửi</b-button
           >
+          <b-button
+            v-if="showPopup === 'edit'"
+            @click="sendRestTime()"
+            pill
+            variant="success"
+            class="ml-auto d-block"
+            >Cập nhật</b-button
+          >
         </div>
       </div>
-      <div v-if="classifySelected == 2">
-        <div class="row">
-          <b-form-group class="col-md-6" label="Giờ bắt đầu">
-            <vue-timepicker
-              v-model.lazy="startTime"
-              :input-class="{
-                'custom-select': true,
-                'is-invalid':
-                  !validateRequired(startTime) || handleShortTime == 0,
-                'is-valid': validateRequired(startTime) && handleShortTime != 0
-              }"
-              hide-clear-button
-              placeholder="Chọn giờ"
+      <div id="detail-time" v-if="showPopup === 'detail'">
+        <div class="content-details table-responsive">
+          <table class="table table-striped table-hover">
+            <tbody>
+              <tr>
+                <th>Kiểu</th>
+                <td>{{ registDetail.classifyName }}</td>
+              </tr>
+              <tr>
+                <th>Tên leader</th>
+                <td>{{ registDetail.leaderName }}</td>
+              </tr>
+              <tr>
+                <th>Giờ bắt đầu</th>
+                <td>{{ registDetail.startTime }}</td>
+              </tr>
+              <tr>
+                <th>Giờ kết thúc</th>
+                <td>{{ registDetail.endTime }}</td>
+              </tr>
+              <tr>
+                <th>Tổng thời gian</th>
+                <td>{{ registDetail.time }}</td>
+              </tr>
+              <tr>
+                <th>Ngày bắt đầu</th>
+                <td>{{ registDetail.startTime }}</td>
+              </tr>
+              <tr>
+                <th>Ngày kết thúc</th>
+                <td>{{ registDetail.endTime }}</td>
+              </tr>
+              <tr>
+                <th>Lý do nghỉ</th>
+                <td>{{ registDetail.reasonName }}</td>
+              </tr>
+              <tr>
+                <th>Tên liên hệ</th>
+                <td>{{ registDetail.nameContact }}</td>
+              </tr>
+              <tr>
+                <th>Sđt liên hệ</th>
+                <td>{{ registDetail.phoneContact }}</td>
+              </tr>
+              <tr>
+                <th>Trạng thái</th>
+                <td>{{ registDetail.statusName }}</td>
+              </tr>
+              <tr>
+                <th>Ghi chú</th>
+                <td>{{ registDetail.note }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="d-flex mt-3 justify-content-center">
+            <b-button @click="editTime()" variant="success" class="mr-3"
+              >Edit</b-button
             >
-            </vue-timepicker>
-          </b-form-group>
-          <b-form-group class="col-md-6" label="Giờ kết thúc">
-            <vue-timepicker
-              v-model.lazy="endTime"
-              :input-class="{
-                'custom-select': true,
-                'is-invalid':
-                  !validateRequired(endTime) || handleShortTime == 0,
-                'is-valid': validateRequired(endTime) && handleShortTime != 0
-              }"
-              hide-clear-button
-              placeholder="Chọn giờ"
-            ></vue-timepicker>
-          </b-form-group>
-        </div>
-        <div class="row">
-          <b-form-group class="col-md-6" label="Ngày bắt đầu">
-            <b-form-datepicker
-              :value="dataDate"
-              locale="vi"
-              disabled
-            ></b-form-datepicker>
-          </b-form-group>
-          <b-form-group class="col-md-6" label="Ngày kết thúc">
-            <b-form-datepicker
-              v-model="endDate"
-              :state="validateRequired(endDate) && handleLongTime !== '0'"
-              today-button
-              reset-button
-              close-button
-              locale="vi"
-              placeholder="Chọn ngày"
-            ></b-form-datepicker>
-          </b-form-group>
-        </div>
-        <div class="row">
-          <b-form-group class="col-md-6" label="Số ngày nghỉ">
-            <b-form-input v-model.lazy="handleLongTime" disabled></b-form-input>
-          </b-form-group>
-          <b-form-group class="col-md-6" label="Lý do nghỉ" label-for="Reason">
-            <b-form-select
-              v-model="reasonSelected"
-              :options="reasonList"
-              :state="validateRequired(reasonSelected)"
-            ></b-form-select>
-          </b-form-group>
-        </div>
-        <div class="row">
-          <b-form-group class="col-md-6" label="Họ tên người liên hệ">
-            <b-form-input
-              v-model="nameContact"
-              :state="validateRequired(nameContact)"
-            ></b-form-input>
-          </b-form-group>
-          <b-form-group class="col-md-6" label="SĐT người liên hệ">
-            <b-form-input
-              v-model.lazy="phoneContact"
-              :state="
-                validateRequired(phoneContact) &&
-                  checkPhone(phoneContact) == true
-              "
-            ></b-form-input>
-          </b-form-group>
-        </div>
-
-        <b-form-group label="Ghi chú">
-          <b-form-textarea
-            v-model="noteTime"
-            placeholder="Viết vào đây..."
-            rows="3"
-            max-rows="6"
-          ></b-form-textarea>
-        </b-form-group>
-        <b-button
-          @click="sendRestTime()"
-          pill
-          variant="success"
-          class="ml-auto d-block"
-          >Gửi</b-button
-        >
-      </div>
-      <div id="detail-time" >
-      <div class="ss-title">
-        <h2 class="title">Chi tiết</h2>
-      </div>
-      <div class="content-details table-responsive">
-        <table class="table table-striped table-hover">
-          <tbody>
-            <tr>
-              <th>Kiểu</th>
-              <td>{{ registDetail.classifyName }}</td>
-            </tr>
-            <tr>
-              <th>Tên leader</th>
-              <td>{{ registDetail.leaderName }}</td>
-            </tr>
-            <tr>
-              <th>Giờ bắt đầu</th>
-              <td>{{ registDetail.startTime }}</td>
-            </tr>
-            <tr>
-              <th>Giờ kết thúc</th>
-              <td>{{ registDetail.endTime }}</td>
-            </tr>
-            <tr>
-              <th>Tổng thời gian</th>
-              <td>{{ registDetail.time }}</td>
-            </tr>
-            <tr>
-              <th>Ngày bắt đầu</th>
-              <td>{{ registDetail.startTime }}</td>
-            </tr>
-            <tr>
-              <th>Ngày kết thúc</th>
-              <td>{{ registDetail.endTime }}</td>
-            </tr>
-             <tr>
-              <th>Lý do nghỉ</th>
-              <td>{{ registDetail.reasonName }}</td>
-            </tr>
-            <tr>
-              <th>Tên liên hệ</th>
-              <td>{{ registDetail.nameContact }}</td>
-            </tr>
-            <tr>
-              <th>Sđt liên hệ</th>
-              <td>{{ registDetail.phoneContact }}</td>
-            </tr>
-            <tr>
-              <th>Trạng thái</th>
-              <td>{{ registDetail.statusName }}</td>
-            </tr>
-            <tr>
-              <th>Ghi chú</th>
-              <td>{{ registDetail.note }}</td>
-            </tr>
-
-          </tbody>
-        </table>
-        <div class="d-flex mt-3">
-          <b-button variant="success" class="mr-3">Edit</b-button>
-          <b-button variant="success">Delete</b-button>
+            <b-button variant="success">Delete</b-button>
+          </div>
         </div>
       </div>
-    </div>
     </b-modal>
   </div>
 </template>
@@ -257,7 +278,7 @@ export default {
   components: {
     VueTimepicker
   },
-  props: ['registDetail', 'dataDate'],
+  props: ['registDetail', 'dataDate', 'showPopup'],
   data () {
     return {
       leadSelected: null,
@@ -275,6 +296,7 @@ export default {
       startTime: '',
       endTime: '',
       time: '',
+      startDate: '',
       endDate: '',
       restDate: '',
       noteTime: ''
@@ -285,10 +307,32 @@ export default {
   },
   watch: {
     dataDate: function () {
+      this.startDate = this.dataDate
       this.endDate = this.dataDate
     }
   },
   methods: {
+    editTime () {
+      this.$emit('showEdit')
+      this.handleEditTime(
+        this.registDetail.startTime,
+        this.registDetail.endTime
+      )
+      this.classifySelected = this.registDetail.classifyTime
+      this.leadSelected = this.registDetail.leaderId
+      this.reasonSelected = this.registDetail.reasonId
+      this.nameContact = this.registDetail.nameContact
+      this.phoneContact = this.registDetail.phoneContact
+      this.noteTime = this.registDetail.noteTime
+    },
+    handleEditTime (startTime, endTime) {
+      let arrStart = startTime.split('T')
+      this.startTime = arrStart[1]
+      this.startDate = arrStart[0]
+      let arrEnd = endTime.split('T')
+      this.endTime = arrEnd[1]
+      this.endDate = arrEnd[0]
+    },
     loadData () {
       let typeId = this.$cookies.get('userData').typeId
       let leadUser = this.$cookies.get('userData').leadUser
@@ -351,15 +395,22 @@ export default {
     },
     sendWorkTime () {
       let data = {
+        Id: this.registDetail.id !== null ? this.registDetail.id : 0,
         UserId: this.$cookies.get('userData').userId,
         LeaderId: this.leadSelected,
         ClassifyTime: this.classifySelected,
-        StartTime: new Date(this.dataDate + ',' + this.startTime + ' UTC'),
-        EndTime: new Date(this.dataDate + ',' + this.endTime + ' UTC'),
+        StartTime: new Date(this.startDate + ',' + this.startTime + ' UTC'),
+        EndTime: new Date(this.endDate + ',' + this.endTime + ' UTC'),
         Time: this.time,
         Note: this.noteTime
       }
-      let requestUrl = '/api/RegistTime/InsertTime'
+      let requestUrl = ''
+      if (this.showPopup === 'regist') {
+        requestUrl = '/api/RegistTime/InsertTime'
+      }
+      if (this.showPopup === 'edit') {
+        requestUrl = '/api/RegistTime/UpdateRegist'
+      }
       // if (
       //   this.leadSelected === null ||
       //   this.classifySelected === null ||
@@ -399,10 +450,11 @@ export default {
     },
     sendRestTime () {
       let data = {
+        Id: this.registDetail.id !== null ? this.registDetail.id : 0,
         UserId: this.$cookies.get('userData').userId,
         LeaderId: this.leadSelected,
         ClassifyTime: this.classifySelected,
-        StartTime: new Date(this.dataDate + ',' + this.startTime + ' UTC'),
+        StartTime: new Date(this.startDate + ',' + this.startTime + ' UTC'),
         EndTime: new Date(this.endDate + ',' + this.endTime + ' UTC'),
         // Khởi tạo ngày tháng rồi cộng 2 chuỗi string ngày với giờ lại
         ReasonId: this.reasonSelected,
@@ -411,7 +463,13 @@ export default {
         Time: this.restDate,
         Note: this.noteTime
       }
-      let requestUrl = '/api/RegistTime/InsertTime'
+      let requestUrl = ''
+      if (this.showPopup === 'regist') {
+        requestUrl = '/api/RegistTime/InsertTime'
+      }
+      if (this.showPopup === 'edit') {
+        requestUrl = '/api/RegistTime/UpdateRegist'
+      }
       if (
         this.leadSelected === null ||
         this.classifySelected === null ||
@@ -457,13 +515,26 @@ export default {
     }
   },
   computed: {
-    handleShortTime: function () {
+    showTitle () {
+      let title = ''
+      if (this.showPopup === 'regist') {
+        title = 'Đăng ký lịch'
+      }
+      if (this.showPopup === 'detail') {
+        title = 'Chi tiết'
+      }
+      if (this.showPopup === 'edit') {
+        title = 'Chỉnh sửa'
+      }
+      return title
+    },
+    handleShortTime () {
       this.time = this.handleTime(this.startTime, this.endTime)
       return this.time
     },
-    handleLongTime: function () {
+    handleLongTime () {
       let handleDate =
-        (new Date(this.endDate) - new Date(this.dataDate)) /
+        (new Date(this.endDate) - new Date(this.startDate)) /
         (1000 * 60 * 60 * 24)
       // khởi tạo ngày bắt đầu và ngày kết thúc
       // sau khi trừ cho nhau thì kết quả trả về miliseconds
@@ -484,9 +555,9 @@ export default {
   margin-top: 30px;
 }
 .ss-title .title {
-    text-align: center;
-    font-size: 30px;
-  }
+  text-align: center;
+  font-size: 30px;
+}
 .vue__time-picker,
 .vue__time-picker input.display-time {
   width: 100%;

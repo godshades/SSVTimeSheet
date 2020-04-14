@@ -5,20 +5,25 @@
         locale="vi"
         :plugins="calendarPlugins"
         :header="{
-        left: 'title',
-        center: 'dayGridMonth,timeGridWeek,timeGridDay,List',
-        right: 'prev today next'
-      }"
-        :buttonText="{
-        today :'Hôm nay',
-        month : 'Tháng',
-        week : 'Tuần',
-        day : 'Ngày'
+          left: 'title',
+          right: 'prev today next'
         }"
+        :buttonText="{
+          today: 'Hôm nay'
+        }"
+        :events="event"
         @dateClick="handleDateClick"
+        @eventClick="handleEventClick"
       />
     </b-container>
-    <ModalRestTime :dataDate="getDateClick"></ModalRestTime>
+    <ModalRestTime
+      :dataDate="getDateClick"
+      :registDetail ="registDetail"
+      :showPopup ="showPopup"
+      v-on:changComponent="refreshComponent"
+      v-on:showEdit="changeEdit"
+    ></ModalRestTime>
+
   </div>
 </template>
 
@@ -39,7 +44,10 @@ export default {
         InteractionPlugin,
         ListPlugin
       ],
-      getDateClick: ''
+      getDateClick: '',
+      event: [],
+      registDetail: null,
+      showPopup: 'regist'
     }
   },
   components: {
@@ -47,17 +55,78 @@ export default {
     ModalRestTime
   },
   methods: {
+    changeEdit () {
+      this.showPopup = 'edit'
+    },
+    handleEventClick (e) {
+      let registId = parseInt(e.event.id)
+      this.axios.get('/api/RegistTime/GetRegistDetail', {
+        params: {
+          registId: registId
+        }
+      })
+        .then(res => {
+          this.registDetail = res.data
+          this.showPopup = 'detail'
+          this.$bvModal.show('popup-time')
+        })
+    },
     handleDateClick (e) {
-      this.$bvModal.show('register-time')
+      this.registDetail = null
+      this.showPopup = 'regist'
+      this.$bvModal.show('popup-time')
       // console.log("handleDateClick -> e.dateStr", e.dateStr)
       this.getDateClick = e.dateStr
       // console.log(this.getDateClick)
+    },
+    refreshComponent () {
+      // console.log('ham 1 chay')
+      this.$emit('changeComponentEvent')
+      // sự kiện thay đổi component để refresh lại trang mà không cần reload
+    },
+    getDataRegist () {
+      let userId = this.$cookies.get('userData').userId
+      // console.log('created -> userId', userId)
+
+      this.axios({
+        method: 'get',
+        url: '/api/RegistTime/GetTimeUser',
+        params: {
+          userId: userId
+        }
+      }).then(res => {
+        // console.log('getDataRegist -> res.data', res.data)
+        for (let key in res.data) {
+          if (res.data.hasOwnProperty(key)) {
+            let color = ''
+            if (res.data[key].status === 2) {
+              color = 'red'
+            } else if (res.data[key].status === 4) {
+              color = '#28a745'
+            } else color = '#ffc107'
+            this.event.push({
+              id: res.data[key].id,
+              title: res.data[key].classifyTime === 1 ? 'Làm thêm' : 'Xin nghỉ',
+              start: res.data[key].startTime,
+              end: res.data[key].endTime,
+              color: color
+            })
+          }
+        }
+      })
     }
   },
-  prop: {}
+  created () {
+    this.getDataRegist()
+  }
 }
 </script>
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 @import "~@fullcalendar/core/main.css";
 @import "~@fullcalendar/daygrid/main.css";
+</style>
+<style lang="css">
+a:not([href]):hover {
+  cursor: pointer;
+}
 </style>

@@ -4,34 +4,56 @@ import Home from './views/Home.vue'
 
 Vue.use(Router)
 
-export default new Router({
+let router = new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
       name: 'home',
-      component: Home
+      component: Home,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
-      path: '/sample-api',
-      name: 'sample-api',
-      component: () => import(/* webpackChunkName: "about" */ './views/SampleApi.vue')
+      path: '/dang-nhap',
+      name: 'userlogin',
+      component: () => import('./views/Users/Login.vue')
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
-    },
-    {
-      path: '/regist-time',
-      name: 'regist-time',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/Users/RegistTime.vue')
+      path: '/admin',
+      name: 'admin',
+      component: () => import('./views/Admin/Index.vue'),
+      meta: {
+        requiresAuth: true,
+        is_admin: true
+      }
     }
-    
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  const loggedIn = Vue.$cookies.get('token')
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (loggedIn === null) {
+      next({
+        path: '/dang-nhap',
+        params: { nextUrl: to.fullPath }
+      })
+    } else {
+      let permission = Vue.$cookies.get('userData').typeId
+      if (to.matched.some(record => record.meta.is_admin)) {
+        if (permission === 2 || permission === 3) {
+          next()
+        } else {
+          next({ name: 'home' })
+        }
+      } else {
+        next()
+      }
+    }
+  } else {
+    next()
+  }
+})
+export default router

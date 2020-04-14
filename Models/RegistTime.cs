@@ -7,17 +7,23 @@ namespace SSVTimeSheet.Models
 {
     public class RegistTime
     {
+        public int Id { get; set; }
         public string UserId { get; set; }
+        public string UserName { get; set; }
         public string LeaderId { get; set; }
-        public string ClassifyTime { get; set; }
-        public DateTime StartWorkTime { get; set; }
-        public DateTime EndWorkTime { get; set; }
-        public float WorkTime { get; set; }
-        public DateTime StartRestTime { get; set; }
-        public DateTime EndRestTime { get; set; }
-        public int RestTime { get; set; }
+        public string LeaderName { get; set; }
+        public int ClassifyTime { get; set; }
+        public string ClassifyName { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public string ReasonName { get; set; }
+        public int ReasonId { get; set; }
+        public string NameContact { get; set; }
+        public string PhoneContact { get; set; }
+        public float Time { get; set; }        
         public string Note { get; set; }
-        public bool Status { get; set; }
+        public int Status { get; set; }
+        public string StatusName { get; set; }
 
 
 

@@ -115,7 +115,7 @@ export default {
       // // console.log("handleDateClick -> e.dateStr", e.dateStr)
       this.getDateClick = e.dateStr
       // console.log(this.getDateClick)
-    },    
+    },
     formatDateTime (dttime) {
       let format = dttime.replace('GMT', ' ').slice(0, 21)
       return format

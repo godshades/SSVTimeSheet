@@ -138,7 +138,7 @@
               :class="errors.has('telNo') || telNo === '' ? 'is-invalid' : 'is-valid'"
               name="telNo"
               data-vv-as="SĐT"
-              v-validate="{ required: true,max: 10, regex: /(09|01[2|6|8|9])+([0-9]{8})\b/g }"
+              v-validate="{ required: true,max: 10, regex: /((09|03|07|08|05)+([0-9]{8})\b)/g }"
             ></b-form-input>
             <span
               class="invalid-feedback d-block"

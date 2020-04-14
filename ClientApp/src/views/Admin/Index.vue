@@ -50,31 +50,15 @@
               </a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-              <a href="/admin/index" class="nav-link">Dashboard</a>
+              <router-link class="nav-link" :to="'/admin'" tag="a">Dashboard</router-link>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
               <a @click.stop.prevent="logOut()" href="#" class="nav-link">Đăng xuất</a>
             </li>
-          </ul>
-          <!-- SEARCH FORM -->
-          <form class="form-inline ml-3">
-            <div class="input-group input-group-sm">
-              <input
-                class="form-control form-control-navbar"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-              />
-              <div class="input-group-append">
-                <button class="btn btn-navbar" type="submit">
-                  <font-awesome-icon icon="search" />
-                </button>
-              </div>
-            </div>
-          </form>
+          </ul>                   
         </nav>
         <div class="content-dashboard">
-          <router-view></router-view>
+          <router-view @refreshComponent="loadData()"></router-view>
         </div>
       </div>
     </div>

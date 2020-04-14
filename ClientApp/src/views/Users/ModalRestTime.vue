@@ -152,7 +152,7 @@
                     v-model.lazy="phoneContact"
                     name="phoneContact"
                     data-vv-as="SĐT"
-                    v-validate="{ required: true,max : 10, regex: /(09|01[2|6|8|9])+([0-9]{8})\b/g }"
+                    v-validate="{ required: true,max : 10, regex: /((09|03|07|08|05)+([0-9]{8})\b)/g }"
                     :class="errors.has('phoneContact') || phoneContact === '' ? 'is-invalid' : 'is-valid'"
                   ></b-form-input>
                   <span

@@ -30,9 +30,9 @@ namespace SSVTimeSheet.Controllers
             var claims = new[] 
             {
             new Claim(JwtRegisteredClaimNames.NameId, userInfo.UserId),
-            new Claim(JwtRegisteredClaimNames.FamilyName, userInfo.Name),
-            new Claim("TypeId", userInfo.TypeId.ToString()),
-            new Claim("LeadUser", userInfo.LeadUser.ToString()),
+            new Claim(JwtRegisteredClaimNames.FamilyName, userInfo.FullName),
+            new Claim("TypeId", userInfo.UserTypeId.ToString()),
+            new Claim("LeadUser", userInfo.LeaderId.ToString()),
             };
 
 

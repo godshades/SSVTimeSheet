@@ -44,10 +44,10 @@ namespace SSVTimeSheet.Controllers
             var result = new RegistTimeDao().SttApprove(leaderId, sttapprove);
             return Json(result);
         }
-        [HttpGet("GetAllLeader")]
-        public JsonResult GetAllLeader(int typeId)
+        [HttpGet("GetLeaderByUser")]
+        public JsonResult GetLeaderByUser(int userTypeID)
         {
-            List<SUser> result = new SUserDao().GetAllLeader(typeId);
+            List<SUser> result = new SUserDao().GetLeaderByUser(userTypeID);
             return Json(result);
         }
         [HttpGet("GetReason")]
@@ -67,6 +67,12 @@ namespace SSVTimeSheet.Controllers
         {
             bool result = new RegistTimeDao().UpdateRegist(data);
             return Json(data);
+        }
+        [HttpDelete("DeleteTime")]
+        public JsonResult DeleteTime(int id)
+        {
+            bool result = new RegistTimeDao().DeleteTime(id);
+            return Json(result);
         }
     }
 }

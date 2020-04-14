@@ -9,49 +9,62 @@
           <!-- Navbar dropdowns -->
           <b-navbar-nav>
             <b-nav-item-dropdown :text="userName" class="ml-auto">
-              <b-dropdown-item href="#">Thông tin của bạn</b-dropdown-item>
-              <b-dropdown-item v-if="permission == 2 || permission == 3" href="/admin">Vào trang quản trị</b-dropdown-item>
+              <li>
+                <router-link class="dropdown-item" :to="'/thong-tin-user'" tag="a">Thông tin của bạn</router-link>
+              </li>
+              <li v-if="permission == 4 || permission == 5 || permission == 6">
+                <router-link class="dropdown-item" :to="'/admin'" tag="a">Vào trang quản trị</router-link>
+              </li>
               <b-dropdown-item @click="logOut()">Đăng xuất</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
         </div>
       </b-navbar>
     </div>
-    <regist-time :key="componentRegistTime" v-on:changeComponentEvent = "refreshComponent"></regist-time>
+    <router-view></router-view>
   </div>
 </template>
 
-<style>
-.home{
+<style lang="css" scope>
+.home {
   padding-bottom: 100px;
+}
+.ss-title {
+  margin-bottom: 30px;
+  margin-top: 30px;
+}
+.ss-title .title {
+  text-align: center;
+  font-size: 30px;
+}
+.vue__time-picker .custom-select.is-invalid {
+  border-color: #dc3545;
+  padding-right: calc(0.75em + 2.3125rem);
+}
+.vue__time-picker .custom-select.is-valid {
+  border-color: #28a745;
+  padding-right: calc(0.75em + 2.3125rem);
+}
+.form-control:disabled {
+  cursor: not-allowed;
 }
 </style>
 
 <script>
-// @ is an alias to /src
-import RegistTime from './Users/RegistTime.vue'
-
 export default {
   name: 'home',
   data () {
     return {
-      componentRegistTime: 0,
-      userName: this.$cookies.get('userData').name,
-      permission: this.$cookies.get('userData').typeId   
+      showComponent: 'registTime',
+      userName: this.$cookies.get('userData').fullName,
+      permission: this.$cookies.get('userData').userTypeId
     }
-  },
-  components: {
-    RegistTime
   },
   methods: {
     logOut () {
       this.$cookies.remove('token')
       this.$cookies.remove('userData')
       this.$router.push('/dang-nhap')
-    },
-    refreshComponent () {
-      this.componentRegistTime += 1
-      // hàm thay đổi component
     }
   }
 }

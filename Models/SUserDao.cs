@@ -1,113 +1,218 @@
-﻿using System;
+﻿using Dapper;
+using SSVTimeSheet.Common;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace SSVTimeSheet.Models
 {
     public class SUserDao
     {
-        SqlCommand cmd;
-        SqlConnection sqlConnect;
-        private string conn = "Server=192.168.10.220;Database=TimeSheet;User Id=waosa;Password=sqlSaPass;";
         public SUser CheckLogin(string UserId, string Password)
         {
-            using (sqlConnect = new SqlConnection(conn))
+            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
             {
-                sqlConnect.Open();
-                cmd = new SqlCommand("SELECT * FROM dbo.SUser WHERE UserId='" + UserId + "' AND Password='" + Password + "'", sqlConnect);
-                SqlDataReader reader = cmd.ExecuteReader();
-                SUser s = new SUser();
+                string sQuery = @"SELECT * , (SELECT TypeValueName FROM dbo.SType t WHERE u.UserTypeId = t.TypeValue AND t.TypeCd = '2') AS [UserTypeName] FROM dbo.SUser u WHERE UserId= @UserId AND Password=@Password";
+                dbConnection.Open();
                 try
                 {
-                    if (reader.HasRows)
-                    {
-                        while (reader.Read())
-                        {
-                            s.UserId = reader["UserId"].ToString();                           
-                            s.Name = reader["Name"].ToString();
-                            s.LeadUser = reader["LeadUser"].ToString();
-                            s.TypeId = reader["TypeId"] == null || reader["TypeId"].ToString() == string.Empty ? 0 : int.Parse(reader["TypeId"].ToString());
-                            s.CreateDate = reader["CreateDate"] == null || reader["CreateDate"].ToString() == string.Empty ? DateTime.Now : DateTime.Parse(reader["CreateDate"].ToString());
-                            s.Birthday = reader["Birthday"] == null || reader["Birthday"].ToString() == string.Empty ? DateTime.Now : DateTime.Parse(reader["Birthday"].ToString());
-                            s.Email = reader["Email"].ToString();
-                            s.TelNo = reader["TelNo"].ToString();
-                            s.RestDay = reader["RestDay"] == null || reader["RestDay"].ToString() == string.Empty ? 0 : int.Parse(reader["RestDay"].ToString());
-                            s.DelFlg = reader["DelFlg"] == null || reader["DelFlg"].ToString() == string.Empty ? false : bool.Parse(reader["DelFlg"].ToString());
-                        }
-                        return s;
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    SUser s = dbConnection.QueryFirstOrDefault<SUser>(sQuery, new { UserId = UserId, Password = Password });
+                    s.Password = null; // Để không trả về password cho client
+                    return s;
                 }
                 catch
                 {
-
                     return null;
+                  
                 }
-                finally
-                {
-
-                    if (reader != null)
-                    {
-                        reader.Close();
-                    }
-
-                }
+               
             }
 
         }
-        public List<SUser> GetAllLeader(int typeId)
+        public List<SUser> GetLeaderByUser(int typeId)
         {
-            using (sqlConnect = new SqlConnection(conn))
+            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
             {
                 int leadId = 0;
-                if (typeId == 2)
+                if (typeId == 2 || typeId == 1 || typeId == 3)
                 {
-                    leadId = 3;
+                    leadId = 4;
                 }
-                else leadId = 2;
-                sqlConnect.Open();
-                cmd = new SqlCommand("SELECT [UserId], [Name] FROM dbo.SUser WHERE [TypeId] ='" + leadId + "'", sqlConnect);
-                // Nếu là User(type != 2 thì query leader(type = 2), Nếu là leader(type = 2) query manager(type = 3)
-                SqlDataReader reader = cmd.ExecuteReader();
-                List<SUser> GetLeader = new List<SUser>();
-                SUser s = null;
-
+                else leadId = 5;
+                string sQuery = @"SELECT [UserId], [FullName] FROM dbo.SUser WHERE [UserTypeId] = @leadId";
+                dbConnection.Open();
                 try
                 {
-                    if (reader.HasRows)
-                    {
-                        while (reader.Read())
-                        {
-                            s = new SUser();
-                            s.UserId = reader["UserId"].ToString();
-                            s.Name = reader["Name"].ToString();
-                            GetLeader.Add(s);
-                        }
-                        return GetLeader;
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    List<SUser> GetLeader = dbConnection.Query<SUser>(sQuery, new { leadId = leadId }).ToList();
+                    return GetLeader;
                 }
                 catch
                 {
 
                     return null;
                 }
-                finally
+            }
+        }
+        public List<SUser> GetAllUser()
+        {
+            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            {
+                string sQuery = @"SELECT *,(SELECT FullName FROM dbo.SUser s WHERE u.LeaderId = s.UserId) AS [LeaderName],(SELECT TypeValueName FROM dbo.SType t WHERE u.UserTypeId = t.TypeValue AND t.TypeCd = '2') AS [UserTypeName] FROM [SSVTimeSheet].[dbo].[SUser] u WHERE u.DelFlg = 'false'";
+                dbConnection.Open();
+                try
                 {
-
-                    if (reader != null)
-                    {
-                        reader.Close();
-                    }
+                    List<SUser> result = dbConnection.Query<SUser>(sQuery).ToList();
+                    return result;
+                }
+                catch
+                {
+                    return null;
                 }
             }
         }
-        
+        public bool DeleteUser(string userId)
+        {
+            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            {
+                string sQuery = @"UPDATE dbo.SUser SET DelFlg = 'true' WHERE UserId = @UserId";
+                dbConnection.Open();
+                try
+                {
+                    dbConnection.Execute(sQuery, new { UserId = userId });
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+        public List<SUser> GetAllLeader()
+        {
+            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            {
+                string sQuery = @"SELECT [UserId], [FullName] FROM dbo.SUser WHERE [UserTypeId] = '4' OR [UserTypeId] = '5' OR [UserTypeId] = '6'";
+                dbConnection.Open();
+                try
+                {
+                    List<SUser> result = dbConnection.Query<SUser>(sQuery).ToList();
+                    return result;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+        public List<SType> GetAllUserType()
+        {
+            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            {
+                string sQuery = @"SELECT * FROM dbo.SType WHERE TypeCd ='2'";
+                dbConnection.Open();
+                try
+                {
+                    List<SType> result = dbConnection.Query<SType>(sQuery).ToList();
+                    return result;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+        public SUser GetUserById(string userId)
+        {
+            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            {
+                string sQuery = @"SELECT *,(SELECT FullName FROM dbo.SUser s WHERE u.LeaderId = s.UserId) AS [LeaderName],(SELECT TypeValueName FROM dbo.SType t WHERE u.UserTypeId = t.TypeValue AND t.TypeCd = '2') AS [UserTypeName] FROM [SSVTimeSheet].[dbo].[SUser] u WHERE UserId = @UserId";
+                dbConnection.Open();
+                try
+                {
+                    SUser result = dbConnection.QueryFirstOrDefault<SUser>(sQuery, new { UserId = userId });
+                    return result;
+                }
+                catch
+                {
+
+                    return null;
+                }
+            }
+        }
+        public int AddUser(SUser data)
+        {
+            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            {
+                string checkQuery = @"SELECT COUNT(*) FROM dbo.SUser WHERE UserId = @UserId";
+                string sQuery = @"INSERT INTO dbo.SUser( UserId ,[Password] ,FullName ,LeaderId ,UserTypeId ,JoinDt ,BirthDt ,Email ,TelNo ,RestDay ,DelFlg)VALUES  ( @UserId ,@Password ,@FullName ,@LeaderId ,@UserTypeId ,@JoinDt ,@BirthDt ,@Email ,@TelNo ,@RestDay ,@DelFlg) ";
+                dbConnection.Open();
+                try
+                {
+
+                    int checkUser = dbConnection.ExecuteScalar<int>(checkQuery, new { UserId = data.UserId });
+                    if (checkUser > 0)
+                    {
+                        return 1;
+                    }
+                    else
+                    {
+                        data.Password = Encryptor.MD5Hash(data.Password);
+                        data.DelFlg = false;
+                        dbConnection.Execute(sQuery, data);
+                        return 2;
+                    }
+
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+        }
+        public bool EditUser(SUser data)
+        {
+            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            {
+
+                string sQuery = @"UPDATE dbo.SUser SET FullName = @FullName , LeaderId = @LeaderId, UserTypeId = @UserTypeId, JoinDt = @JoinDt,BirthDt = @BirthDt, Email = @Email, TelNo = @TelNo, RestDay = @RestDay WHERE UserId = @UserId";
+                dbConnection.Open();
+                try
+                {                   
+                    dbConnection.Execute(sQuery, data);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+        /// <summary>
+        /// Client
+        /// </summary>
+        /// <returns>bool</returns>
+        public bool UpdateUser(SUser data)
+        {
+            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            {
+
+                string sQuery = @"UPDATE dbo.SUser SET FullName = @FullName ,BirthDt = @BirthDt, Email = @Email, TelNo = @TelNo WHERE UserId = @UserId";
+                dbConnection.Open();
+                try
+                {
+                    dbConnection.Execute(sQuery, data);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+
+
     }
 }

@@ -7,8 +7,9 @@ namespace SSVTimeSheet.Models
 {
     public class SType
     {
-        public int TypeId { get; set; }
+        public string TypeCd { get; set; }
         public string TypeName { get; set; }
-        public int GroupId { get; set; }       
+        public int TypeValue { get; set; }     
+        public string TypeValueName { get; set; }
     }
 }

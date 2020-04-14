@@ -4,24 +4,16 @@
       <div class="menu-left side-navbar">
         <div class="side-navbar-wrapper">
           <!-- Sidebar Header    -->
-          <div
-            class="sidenav-header d-flex align-items-center justify-content-center"
-          >
+          <div class="sidenav-header d-flex align-items-center justify-content-center">
             <!-- User Info-->
             <div class="sidenav-header-inner text-center">
               <img
-                src="https://d19m59y37dris4.cloudfront.net/dashboard/1-4-7/img/avatar-7.jpg"
+                src="https://sohanews.sohacdn.com/thumb_w/660/2018/10/30/photo1540869868077-15408698680771260604890.jpg"
                 alt="person"
                 class="img-fluid rounded-circle mCS_img_loaded"
               />
               <h2 class="h5">{{userName}}</h2>
-              <span>{{position}}</span>
-            </div>
-            <!-- Small Brand information, appears on minimized sidebar-->
-            <div class="sidenav-header-logo">
-              <a href="index.html" class="brand-small text-center">
-                <strong>B</strong><strong class="text-primary">D</strong></a
-              >
+              <span>I am {{position}}</span>
             </div>
           </div>
           <!-- Sidebar Navigation Menus-->
@@ -29,20 +21,20 @@
             <h5 class="sidenav-heading">Main</h5>
             <ul id="side-main-menu" class="side-menu list-unstyled">
               <li>
-                <a href="/">
-                  <font-awesome-icon icon="home" /> Đi đến trang chủ
-                </a>
+               <router-link :to="'/'" tag="a">
+                  <font-awesome-icon icon="home" />Đi đến trang chủ
+               </router-link>
               </li>
-              <li>
-                <a href="#">
+              <li :class="this.$route.path === '/admin' ? 'active' : ''">
+                <router-link :to="'/admin'" tag="a">
                   <font-awesome-icon icon="check" />Yêu cầu chưa duyệt
-                  <div class="badge badge-info ml-auto">{{countRequire}}</div></a
-                >
+                  <div class="badge badge-danger ml-auto">{{countRequire}}</div>
+                </router-link>
               </li>
-              <li>
-                <a href="#">
-                  <font-awesome-icon icon="table" />Yêu cầu đã duyệt
-                </a>
+              <li :class=" this.$route.path === '/admin/danh-sach-user' ? 'active' : ''">
+                <router-link :to="'/admin/danh-sach-user'" tag="a">
+                  <font-awesome-icon icon="list-ul" />Danh sách nhân viên
+                </router-link>
               </li>
             </ul>
           </div>
@@ -53,9 +45,9 @@
           <!-- Left navbar links -->
           <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link" data-widget="pushmenu" href="#"
-                ><font-awesome-icon icon="bars"
-              /></a>
+              <a class="nav-link" data-widget="pushmenu" href="#">
+                <font-awesome-icon icon="bars" />
+              </a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
               <a href="/admin/index" class="nav-link">Dashboard</a>
@@ -82,29 +74,27 @@
           </form>
         </nav>
         <div class="content-dashboard">
-          <ManagerRequirement v-on:refreshComponent="loadData()"/>
+          <router-view></router-view>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import ManagerRequirement from './ManagerRequirement.vue'
 export default {
   data () {
     return {
+      nameComponent: 'ManagerRequirement',
       countRequire: '',
-      userName: this.$cookies.get('userData').name,
-      position: this.$cookies.get('userData').typeId === 2 ? 'Leader' : 'Manager'
+      userName: this.$cookies.get('userData').fullName,
+      position: this.$cookies.get('userData').userTypeName
     }
   },
-  components: {
-    ManagerRequirement
-  },
+  components: {},
   methods: {
     loadData () {
       let leaderId = this.$cookies.get('userData').userId
-      let sttapprove = this.$cookies.get('userData').typeId === 2 ? 1 : 3
+      let sttapprove = this.$cookies.get('userData').userTypeId === 4 ? 1 : 3
       this.axios
         .get('/api/RegistTime/SttApprove', {
           params: {
@@ -127,7 +117,7 @@ export default {
   }
 }
 </script>
-<style lang="css">
+<style lang="css" scope>
 ::-webkit-scrollbar {
   width: 5px;
 }
@@ -178,6 +168,9 @@ export default {
 .side-navbar .sidenav-header img {
   width: 50px;
   height: 50px;
+}
+.side-navbar li.active > a {
+  background: #33b35a;
 }
 .side-navbar .sidenav-header h2 {
   margin: 10px 0 0;
@@ -233,5 +226,15 @@ export default {
   background: #33b35a;
   color: #fff;
   text-decoration: none;
+}
+a {
+  color: #33b35a;
+  text-decoration: none;
+}
+.breadcrumb-holder {
+  background: #eceeef;
+}
+.container-fluid {
+  padding: 0 3rem;
 }
 </style>

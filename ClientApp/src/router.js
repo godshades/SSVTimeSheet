@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './views/Home.vue'
 
 Vue.use(Router)
 
@@ -9,11 +8,22 @@ let router = new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Home,
+      component: () => import('./views/Home.vue'),
       meta: {
         requiresAuth: true
-      }
+      },
+      children: [
+        {
+          path: '/',
+          name: 'registTime',
+          component: () => import('./views/Users/RegistTime.vue')
+        },
+        {
+          path: 'thong-tin-user',
+          name: 'userInfo',
+          component: () => import('./views/Users/UserInfo.vue')
+        }
+      ]
     },
     {
       path: '/dang-nhap',
@@ -22,12 +32,23 @@ let router = new Router({
     },
     {
       path: '/admin',
-      name: 'admin',
       component: () => import('./views/Admin/Index.vue'),
       meta: {
         requiresAuth: true,
         is_admin: true
-      }
+      },
+      children: [
+        {
+          path: '/',
+          name: 'managerRequirement',
+          component: () => import('./views/Admin/ManagerRequirement.vue')
+        },
+        {
+          path: 'danh-sach-user',
+          name: 'listUser',
+          component: () => import('./views/Admin/ListUser.vue')
+        }
+      ]
     }
   ]
 })
@@ -41,9 +62,9 @@ router.beforeEach((to, from, next) => {
         params: { nextUrl: to.fullPath }
       })
     } else {
-      let permission = Vue.$cookies.get('userData').typeId
+      let permission = Vue.$cookies.get('userData').userTypeId
       if (to.matched.some(record => record.meta.is_admin)) {
-        if (permission === 2 || permission === 3) {
+        if (permission === 4 || permission === 5 || permission === 6) {
           next()
         } else {
           next({ name: 'home' })

@@ -4,11 +4,11 @@
       <div class="form">
         <form class="login-form">
           <div class="border-input">
-            <input type="text" v-model="userid" required />
+            <input type="text" v-model="userid" required autocomplete="off" />
             <div class="input-placeholder">UserId</div>
           </div>
           <div class="border-input">
-            <input type="password" v-model="password" required />
+            <input type="password" v-model="password" required autocomplete="off" />
             <div class="input-placeholder">Password</div>
           </div>
           <b-form-checkbox
@@ -16,12 +16,12 @@
             v-model="rememberMe"
             value="true"
             unchecked-value="false"
-            >Nhớ mật khẩu</b-form-checkbox
-          >
-          <button class="btn-login" type="button" @click="signIn()">
-            Đăng nhập
-          </button>
-          <p class="message">Chưa có tài khoản? <a href="#">Đăng kí mới</a></p>
+          >Nhớ mật khẩu</b-form-checkbox>
+          <button class="btn-login" type="button" @click="login()">Đăng nhập</button>
+          <p class="message">
+            Chưa có tài khoản?
+            <a href="#">Đăng kí mới</a>
+          </p>
         </form>
       </div>
     </div>
@@ -43,7 +43,7 @@ export default {
   },
 
   methods: {
-    signIn () {
+    login () {
       let data = {
         UserId: this.userid,
         Password: this.password
@@ -52,26 +52,25 @@ export default {
         method: 'post',
         url: 'api/UserLogin/Login',
         data: data
+      }).then(res => {
+        if (res.data.statusCode === 400) {
+          this.$toastr.error(
+            'Id hoặc mật khẩu không chính xác',
+            'Xin kiểm tra lại!'
+          )
+        } else {
+          let token = res.data.token
+          this.$cookies.set('token', token)
+          this.$cookies.set('userData', res.data.userData)
+          // console.log('signIn -> res.data.userData', res.data.userData)
+          // console.log('cookies', this.$cookies.get('userData'))
+          this.$router.push('/')
+          this.$toastr.success(
+            `Chào mừng ${res.data.userData.name} đến với Saishunkan System`,
+            'Wellcome'
+          )
+        }
       })
-        .then(res => {
-          if (res.data.statusCode === 400) {
-            this.$toastr.error(
-              'Id hoặc mật khẩu không chính xác',
-              'Xin kiểm tra lại!'
-            )
-          } else {
-            let token = res.data.token
-            this.$cookies.set('token', token)
-            this.$cookies.set('userData', res.data.userData)
-            // console.log("signIn -> res.data.userData", res.data.userData)
-            this.$router.push({ name: 'home' }).catch(err => {})            
-            this.$toastr.success(
-              `Chào mừng ${res.data.userData.name} đến với Saishunkan System`,
-              'Wellcome'
-            )
-          }
-        })
-        .catch(err => {})
     }
   }
 }

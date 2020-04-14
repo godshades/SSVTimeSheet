@@ -3,7 +3,9 @@
     <div class="breadcrumb-holder">
       <div class="container-fluid">
         <ul class="breadcrumb">
-          <li class="breadcrumb-item"><a href="/admin/index">Home</a></li>
+          <li class="breadcrumb-item">
+            <a href="/admin/index">Home</a>
+          </li>
           <li class="breadcrumb-item active">Yêu cầu</li>
         </ul>
       </div>
@@ -12,7 +14,7 @@
       <div class="container-fluid">
         <!-- Page Header-->
         <header>
-          <h1 class="h3 display">Yêu cầu chưa phê duyệt</h1>
+          <h1 class="h3 col display">Yêu cầu chưa phê duyệt</h1>
         </header>
         <div class="row">
           <div class="col-lg-12">
@@ -36,27 +38,26 @@
                 <tbody>
                   <tr v-for="(item, index) in requirementTime" :key="index">
                     <th scope="row">{{ index + 1 }}</th>
-                    <td>{{ item.userName }}</td>
-                    <td>{{ item.classifyTime }}</td>
-                    <td>{{ item.startTime }}</td>
-                    <td>{{ item.endTime }}</td>
-                    <td>{{ item.time }} ngày</td>
-                    <td>{{ item.reasonName }}</td>
-                    <td>{{ item.nameContact }}</td>
-                    <td>{{ item.phoneContact }}</td>
+                    <td>{{ item.fullName }}</td>
+                    <td>{{ item.jobTypeName }}</td>
+                    <td>{{ item.startDtTm }}</td>
+                    <td>{{ item.endDtTm }}</td>
+                    <td>{{ item.totalTime }} ngày</td>
+                    <td>{{ item.restReasonName }}</td>
+                    <td>{{ item.restNameContact }}</td>
+                    <td>{{ item.restPhoneContact }}</td>
                     <td>{{ item.note }}</td>
                     <td>
                       <b-button
                         variant="success"
-                        @click="approveRequire(item.Id, approYes, index)"
+                        @click="approveRequire(item.id, approYes, index)"
                         class="mr-1"
-                        ><font-awesome-icon icon="check"
-                      /></b-button>
-                      <b-button
-                        variant="danger"
-                        @click="approveRequire(item.Id, 2, index)"
-                        ><font-awesome-icon icon="times"
-                      /></b-button>
+                      >
+                        <font-awesome-icon icon="check" />
+                      </b-button>
+                      <b-button variant="danger" @click="approveRequire(item.id, 2, index)">
+                        <font-awesome-icon icon="times" />
+                      </b-button>
                     </td>
                   </tr>
                 </tbody>
@@ -74,14 +75,14 @@ export default {
   data () {
     return {
       requirementTime: [],
-      approYes: this.$cookies.get('userData').typeId === 2 ? 3 : 4
+      approYes: this.$cookies.get('userData').userTypeId === 4 ? 3 : 4
       // Nếu là leader thì trạng thái đồng ý sẽ là 3|| còn manager thì sẽ là 4
     }
   },
   methods: {
     getRequirementTime () {
       let leaderid = this.$cookies.get('userData').userId
-      let status = this.$cookies.get('userData').typeId === 2 ? 1 : 3
+      let status = this.$cookies.get('userData').userTypeId === 4 ? 1 : 3
       // lấy quyền người dùng
       this.axios
         .get('/api/RegistTime/GetRequirementTime', {
@@ -97,19 +98,18 @@ export default {
           //   console.log('getRequirementTime -> res', res)
           for (let key in res.data) {
             if (res.data.hasOwnProperty(key)) {
-              let startTime = this.formatDateTime(res.data[key].startTime)
-              let endTime = this.formatDateTime(res.data[key].endTime)
+              let startDtTm = this.formatDateTime(res.data[key].startDtTm)
+              let endDtTm = this.formatDateTime(res.data[key].endDtTm)
               this.requirementTime.push({
-                Id: parseInt(res.data[key].id),
-                userName: res.data[key].userName,
-                classifyTime:
-                  res.data[key].classifyTime === 1 ? 'Làm thêm' : 'Xin nghỉ',
-                startTime: startTime,
-                endTime: endTime,
-                reasonName: res.data[key].reasonName,
-                nameContact: res.data[key].nameContact,
-                phoneContact: res.data[key].phoneContact,
-                time: res.data[key].time,
+                id: parseInt(res.data[key].id),
+                fullName: res.data[key].fullName,
+                jobTypeName: res.data[key].jobTypeName,
+                startDtTm: startDtTm,
+                endDtTm: endDtTm,
+                restReasonName: res.data[key].restReasonName,
+                restNameContact: res.data[key].restNameContact,
+                restPhoneContact: res.data[key].restPhoneContact,
+                totalTime: res.data[key].totalTime,
                 note: res.data[key].note
               })
             }
@@ -124,25 +124,49 @@ export default {
       return format
     },
     approveRequire (id, status, index) {
-      console.log('removeRequire -> status', status)
-      console.log('removeRequire -> id', id)
-      this.axios
-        .get('/api/RegistTime/ApproveTime', {
-          params: {
-            id: id,
-            status: status
-          }
-        })
-        .then(res => {
-          if (res.data === true) {
-            this.$delete(this.requirementTime, index)
-            this.$emit('refreshComponent')
-            this.$toastr.success('Xác nhận hành công', 'OK!')
-          } else this.$toastr.error('', 'Lỗi rồi!')
-        })
-        .catch(err => {
-          console.error(err)
-        })
+      // console.log('removeRequire -> status', status)
+      // console.log('removeRequire -> id', id)
+      let title = ''
+      let text = ''
+      let confirmButtonText = ''
+      if (status === 2) {
+        title = 'Huỷ yêu cầu?'
+        text = 'Bạn có chắc chắn muốn huỷ yêu cầu này?'
+        confirmButtonText = 'Xoá!'
+      }
+      if (status === 3 || status === 4) {
+        title = 'Đồng ý yêu cầu?'
+        text = 'Bạn có chắc chắn muốn đồng ý yêu cầu này?'
+        confirmButtonText = 'Đồng ý!'
+      }
+
+      this.$swal({
+        title: title,
+        text: text,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: confirmButtonText
+      }).then(result => {
+        if (result.value) {
+          this.axios
+            .get('/api/RegistTime/ApproveTime', {
+              params: {
+                id: id,
+                status: status
+              }
+            })
+            .then(res => {
+              if (res.data === true) {
+                this.$delete(this.requirementTime, index)
+                this.$emit('refreshComponent')
+                this.$swal('Hoàn thành!', 'Xác nhận thành công', 'success')
+              } else this.$swal('Sorry', 'Bị lỗi gì đó!!!', 'error')
+            })
+            .catch(err => {
+              console.error(err)
+            })
+        }
+      })
     }
   },
   created () {
@@ -154,15 +178,6 @@ export default {
 }
 </script>
 
-<style lang="css" scoped>
-a {
-  color: #33b35a;
-  text-decoration: none;
-}
-.breadcrumb-holder {
-  background: #eceeef;
-}
-.container-fluid {
-  padding: 0 3rem;
-}
+<style lang="css" scope>
+
 </style>

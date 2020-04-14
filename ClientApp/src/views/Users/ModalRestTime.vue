@@ -4,32 +4,39 @@
       <div class="ss-title">
         <h2 class="title">{{ showTitle }}</h2>
       </div>
-      <div
-        id="register-time"
-        v-if="showPopup === 'regist' || showPopup === 'edit'"
-      >
+      <div v-if="showPopup === 'regist' || showPopup === 'edit'">
         <div>
           <div class="row">
-            <b-form-group
-              class="col-md-6"
-              label="Phân loại thời gian"
-              label-for="classifyTime"
-            >
+            <b-form-group class="col-md-6" label="Phân loại thời gian" label-for="jobType">
               <b-form-select
-                v-model="classifySelected"
-                :options="classifyTime"
-                :state="validateRequired(classifySelected)"
+                v-model="jobTypeSelected"
+                :options="jobType"
+                :class="errors.has('jobTypeSelected') || jobTypeSelected === null ? 'is-invalid' : 'is-valid'"
+                name="jobTypeSelected"
+                data-vv-as="Phân loại"
+                v-validate="'required'"
               ></b-form-select>
+              <span
+                class="invalid-feedback d-block"
+                v-if="errors.has('jobTypeSelected') == true"
+              >{{errors.first('jobTypeSelected')}}</span>
             </b-form-group>
             <b-form-group class="col-md-6" label="Người nhận">
               <b-form-select
                 v-model="leadSelected"
                 :options="LeaderSelect"
-                :state="validateRequired(leadSelected)"
+                name="leadSelected"
+                data-vv-as="Người nhận"
+                v-validate="'required'"
+                :class="errors.has('leadSelected') || leadSelected === null ? 'is-invalid' : 'is-valid'"
               ></b-form-select>
+              <span
+                class="invalid-feedback d-block"
+                v-if="errors.has('leadSelected') == true"
+              >{{errors.first('leadSelected')}}</span>
             </b-form-group>
           </div>
-          <div v-if="classifySelected != 2">
+          <div>
             <div class="row">
               <b-form-group class="col-md-6" label="Giờ bắt đầu">
                 <vue-timepicker
@@ -37,14 +44,20 @@
                   :input-class="{
                     'custom-select': true,
                     'is-invalid':
-                      !validateRequired(startTime) || handleShortTime == 0,
+                      errors.has('startTime') || startTime === ''|| handleShortTime == 0,
                     'is-valid':
-                      validateRequired(startTime) && handleShortTime != 0
+                      !errors.has('startTime') && startTime !== '' && handleShortTime != 0
                   }"
                   hide-clear-button
                   placeholder="Chọn giờ"
-                >
-                </vue-timepicker>
+                  name="startTime"
+                  data-vv-as="Thời gian bắt đầu"
+                  v-validate="'required'"
+                ></vue-timepicker>
+                <span
+                  class="invalid-feedback d-block"
+                  v-if="errors.has('startTime') == true"
+                >{{errors.first('startTime')}}</span>
               </b-form-group>
               <b-form-group class="col-md-6" label="Giờ kết thúc">
                 <vue-timepicker
@@ -52,26 +65,102 @@
                   :input-class="{
                     'custom-select': true,
                     'is-invalid':
-                      !validateRequired(endTime) || handleShortTime == 0,
+                      errors.has('endTime') || endTime === ''|| handleShortTime == 0,
                     'is-valid':
-                      validateRequired(endTime) && handleShortTime != 0
+                      !errors.has('endTime') && endTime !== '' && handleShortTime != 0
                   }"
                   hide-clear-button
                   placeholder="Chọn giờ"
+                  name="endTime"
+                  data-vv-as="Thời gian kết thúc"
+                  v-validate="'required'"
                 ></vue-timepicker>
+                <span
+                  class="invalid-feedback d-block"
+                  v-if="errors.has('endTime') == true"
+                >{{errors.first('endTime')}}</span>
               </b-form-group>
             </div>
-            <div class="row">
+            <div class="row" v-if="jobTypeSelected === 1">
               <b-form-group class="col-md-6" label="Số ngày làm">
-                <b-form-input
-                  v-model.lazy="handleShortTime"
-                  disabled
-                ></b-form-input>
+                <b-form-input v-model.lazy="handleShortTime" disabled></b-form-input>
               </b-form-group>
 
               <b-form-group class="col-md-6" label="Ngày đăng ký làm">
                 <b-form-input :value="startDate" disabled></b-form-input>
               </b-form-group>
+            </div>
+            <div v-if="jobTypeSelected == 2">
+              <div class="row">
+                <b-form-group class="col-md-6" label="Ngày bắt đầu">
+                  <b-form-datepicker :value="startDate" locale="vi" disabled></b-form-datepicker>
+                </b-form-group>
+                <b-form-group class="col-md-6" label="Ngày kết thúc">
+                  <b-form-datepicker
+                    v-model="endDate"
+                    today-button
+                    reset-button
+                    close-button
+                    locale="vi"
+                    placeholder="Chọn ngày"
+                    name="endDate"
+                    data-vv-as="Ngày kết thúc"
+                    v-validate="'required'"
+                    :class="errors.has('endDate') || endDate === '' || handleLongTime === '0' ? 'is-invalid' : 'is-valid'"
+                  ></b-form-datepicker>
+                  <span
+                    class="invalid-feedback d-block"
+                    v-if="errors.has('endDate') == true"
+                  >{{errors.first('endDate')}}</span>
+                </b-form-group>
+              </div>
+              <div class="row">
+                <b-form-group class="col-md-6" label="Số ngày nghỉ">
+                  <b-form-input v-model.lazy="handleLongTime" disabled></b-form-input>
+                </b-form-group>
+                <b-form-group class="col-md-6" label="Lý do nghỉ" label-for="Reason">
+                  <b-form-select
+                    v-model="reasonSelected"
+                    :options="reasonList"
+                    name="reasonSelected"
+                    data-vv-as="Lý do nghỉ"
+                    v-validate="'required'"
+                    :class="errors.has('reasonSelected') || reasonSelected === '' ? 'is-invalid' : 'is-valid'"
+                  ></b-form-select>
+                  <span
+                    class="invalid-feedback d-block"
+                    v-if="errors.has('reasonSelected') == true"
+                  >{{errors.first('reasonSelected')}}</span>
+                </b-form-group>
+              </div>
+              <div class="row">
+                <b-form-group class="col-md-6" label="Họ tên người liên hệ">
+                  <b-form-input
+                    v-model="nameContact"
+                    :class="errors.has('nameContact') || nameContact === '' ? 'is-invalid' : 'is-valid'"
+                    v-validate="'required'"
+                    name="nameContact"
+                    data-vv-as="Họ tên người liên hệ"
+                  ></b-form-input>
+                  <span
+                    class="invalid-feedback d-block"
+                    v-if="errors.has('nameContact') == true"
+                  >{{errors.first('nameContact')}}</span>
+                </b-form-group>
+                <b-form-group class="col-md-6" label="SĐT người liên hệ">
+                  <b-form-input
+                    v-model.lazy="phoneContact"
+                    name="phoneContact"
+                    data-vv-as="SĐT"
+                    v-validate="{ required: true,max : 10, regex: /(09|01[2|6|8|9])+([0-9]{8})\b/g }"
+                    :class="errors.has('phoneContact') || phoneContact === '' ? 'is-invalid' : 'is-valid'"
+                  ></b-form-input>
+                  <span
+                    class="invalid-feedback d-block"
+                    v-if="errors.has('phoneContact') == true"
+                  >{{errors.first('phoneContact')}}</span>
+                </b-form-group>
+              </div>
             </div>
             <b-form-group label="Ghi chú">
               <b-form-textarea
@@ -81,137 +170,17 @@
                 max-rows="6"
               ></b-form-textarea>
             </b-form-group>
-
-            <b-button
-              @click="sendWorkTime()"
-              pill
-              variant="success"
-              class="ml-auto d-block"
-              >Gửi</b-button
-            >
+            <b-button @click="sendWorkTime()" pill variant="success" class="ml-auto d-block">Gửi</b-button>
           </div>
-        </div>
-        <div v-if="classifySelected == 2">
-          <div class="row">
-            <b-form-group class="col-md-6" label="Giờ bắt đầu">
-              <vue-timepicker
-                v-model.lazy="startTime"
-                :input-class="{
-                  'custom-select': true,
-                  'is-invalid':
-                    !validateRequired(startTime) || handleShortTime == 0,
-                  'is-valid':
-                    validateRequired(startTime) && handleShortTime != 0
-                }"
-                hide-clear-button
-                placeholder="Chọn giờ"
-              >
-              </vue-timepicker>
-            </b-form-group>
-            <b-form-group class="col-md-6" label="Giờ kết thúc">
-              <vue-timepicker
-                v-model.lazy="endTime"
-                :input-class="{
-                  'custom-select': true,
-                  'is-invalid':
-                    !validateRequired(endTime) || handleShortTime == 0,
-                  'is-valid': validateRequired(endTime) && handleShortTime != 0
-                }"
-                hide-clear-button
-                placeholder="Chọn giờ"
-              ></vue-timepicker>
-            </b-form-group>
-          </div>
-          <div class="row">
-            <b-form-group class="col-md-6" label="Ngày bắt đầu">
-              <b-form-datepicker
-                :value="startDate"
-                locale="vi"
-                disabled
-              ></b-form-datepicker>
-            </b-form-group>
-            <b-form-group class="col-md-6" label="Ngày kết thúc">
-              <b-form-datepicker
-                v-model="endDate"
-                :state="validateRequired(endDate) && handleLongTime !== '0'"
-                today-button
-                reset-button
-                close-button
-                locale="vi"
-                placeholder="Chọn ngày"
-              ></b-form-datepicker>
-            </b-form-group>
-          </div>
-          <div class="row">
-            <b-form-group class="col-md-6" label="Số ngày nghỉ">
-              <b-form-input
-                v-model.lazy="handleLongTime"
-                disabled
-              ></b-form-input>
-            </b-form-group>
-            <b-form-group
-              class="col-md-6"
-              label="Lý do nghỉ"
-              label-for="Reason"
-            >
-              <b-form-select
-                v-model="reasonSelected"
-                :options="reasonList"
-                :state="validateRequired(reasonSelected)"
-              ></b-form-select>
-            </b-form-group>
-          </div>
-          <div class="row">
-            <b-form-group class="col-md-6" label="Họ tên người liên hệ">
-              <b-form-input
-                v-model="nameContact"
-                :state="validateRequired(nameContact)"
-              ></b-form-input>
-            </b-form-group>
-            <b-form-group class="col-md-6" label="SĐT người liên hệ">
-              <b-form-input
-                v-model.lazy="phoneContact"
-                :state="
-                  validateRequired(phoneContact) &&
-                    checkPhone(phoneContact) == true
-                "
-              ></b-form-input>
-            </b-form-group>
-          </div>
-
-          <b-form-group label="Ghi chú">
-            <b-form-textarea
-              v-model="noteTime"
-              placeholder="Viết vào đây..."
-              rows="3"
-              max-rows="6"
-            ></b-form-textarea>
-          </b-form-group>
-          <b-button
-            v-if="showPopup === 'regist'"
-            @click="sendRestTime()"
-            pill
-            variant="success"
-            class="ml-auto d-block"
-            >Gửi</b-button
-          >
-          <b-button
-            v-if="showPopup === 'edit'"
-            @click="sendRestTime()"
-            pill
-            variant="success"
-            class="ml-auto d-block"
-            >Cập nhật</b-button
-          >
         </div>
       </div>
-      <div id="detail-time" v-if="showPopup === 'detail'">
+      <div v-if="showPopup === 'detail'">
         <div class="content-details table-responsive">
           <table class="table table-striped table-hover">
             <tbody>
               <tr>
                 <th>Kiểu</th>
-                <td>{{ registDetail.classifyName }}</td>
+                <td>{{ registDetail.jobTypeName }}</td>
               </tr>
               <tr>
                 <th>Tên leader</th>
@@ -219,35 +188,35 @@
               </tr>
               <tr>
                 <th>Giờ bắt đầu</th>
-                <td>{{ registDetail.startTime }}</td>
+                <td>{{ registDetail.startDtTm }}</td>
               </tr>
               <tr>
                 <th>Giờ kết thúc</th>
-                <td>{{ registDetail.endTime }}</td>
+                <td>{{ registDetail.endDtTm }}</td>
               </tr>
               <tr>
                 <th>Tổng thời gian</th>
-                <td>{{ registDetail.time }}</td>
+                <td>{{ registDetail.totalTime }}</td>
               </tr>
               <tr>
                 <th>Ngày bắt đầu</th>
-                <td>{{ registDetail.startTime }}</td>
+                <td>{{ registDetail.startDtTm }}</td>
               </tr>
               <tr>
                 <th>Ngày kết thúc</th>
-                <td>{{ registDetail.endTime }}</td>
+                <td>{{ registDetail.endDtTm }}</td>
               </tr>
-              <tr>
+              <tr v-if="registDetail.jobType === 2">
                 <th>Lý do nghỉ</th>
-                <td>{{ registDetail.reasonName }}</td>
+                <td>{{ registDetail.restReasonName }}</td>
               </tr>
-              <tr>
+              <tr v-if="registDetail.jobType === 2">
                 <th>Tên liên hệ</th>
-                <td>{{ registDetail.nameContact }}</td>
+                <td>{{ registDetail.restNameContact }}</td>
               </tr>
-              <tr>
+              <tr v-if="registDetail.jobType === 2">
                 <th>Sđt liên hệ</th>
-                <td>{{ registDetail.phoneContact }}</td>
+                <td>{{ registDetail.restPhoneContact }}</td>
               </tr>
               <tr>
                 <th>Trạng thái</th>
@@ -260,10 +229,17 @@
             </tbody>
           </table>
           <div class="d-flex mt-3 justify-content-center">
-            <b-button @click="editTime()" variant="success" class="mr-3"
-              >Edit</b-button
-            >
-            <b-button variant="success">Delete</b-button>
+            <b-button
+              v-if="calculateTime(registDetail.insertDt) <= 3 && registDetail.status !== 4 && registDetail.status !== 2"
+              @click="editTime()"
+              variant="success"
+              class="mr-3"
+            >Edit</b-button>
+            <b-button
+              v-if="calculateTime(registDetail.insertDt) <= 1 && registDetail.status !== 4 && registDetail.status !== 2"
+              @click="deleteTime(registDetail.id)"
+              variant="success"
+            >Delete</b-button>
           </div>
         </div>
       </div>
@@ -283,8 +259,8 @@ export default {
     return {
       leadSelected: null,
       LeaderSelect: [],
-      classifySelected: null,
-      classifyTime: [
+      jobTypeSelected: null,
+      jobType: [
         { value: null, text: 'Chọn', disabled: true },
         { value: 1, text: 'Làm thêm' },
         { value: 2, text: 'Xin nghỉ' }
@@ -295,10 +271,8 @@ export default {
       phoneContact: '',
       startTime: '',
       endTime: '',
-      time: '',
       startDate: '',
       endDate: '',
-      restDate: '',
       noteTime: ''
     }
   },
@@ -312,18 +286,59 @@ export default {
     }
   },
   methods: {
+    calculateTime (time) {
+      return (Date.now() - new Date(time)) / (1000 * 60 * 60 * 24)
+    },
+    deleteTime (id) {
+      this.$swal({
+        title: 'Bạn có chắc muốn xoá?',
+        text: 'Bạn sẽ không thể hoàn nguyên điều này!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Xoá!'
+      }).then(result => {
+        if (result.value) {
+          this.axios
+            .delete('/api/RegistTime/DeleteTime', {
+              params: {
+                id: id
+              }
+            })
+            .then(res => {
+              if (res.data === true) {
+                this.$swal('Hoàn thành!', 'Yêu cầu đã bị xoá', 'success')
+              } else {
+                this.$toastr.error(
+                  'Xoá thất bại, vui lòng kiểm tra lại',
+                  'Lỗi rồi'
+                )
+              }
+              this.$emit('changComponent')
+            })
+            .catch(err => {
+              console.error(err)
+            })
+        }
+      })
+    },
     editTime () {
       this.$emit('showEdit')
       this.handleEditTime(
-        this.registDetail.startTime,
-        this.registDetail.endTime
+        this.registDetail.startDtTm,
+        this.registDetail.endDtTm
       )
-      this.classifySelected = this.registDetail.classifyTime
+      this.jobTypeSelected = this.registDetail.jobType
       this.leadSelected = this.registDetail.leaderId
-      this.reasonSelected = this.registDetail.reasonId
-      this.nameContact = this.registDetail.nameContact
-      this.phoneContact = this.registDetail.phoneContact
-      this.noteTime = this.registDetail.noteTime
+      this.reasonSelected = this.registDetail.restReasonId
+      this.nameContact =
+        this.registDetail.restNameContact != null
+          ? this.registDetail.restNameContact
+          : this.$cookies.get('userData').fullName
+      this.phoneContact =
+        this.registDetail.restPhoneContact != null
+          ? this.registDetail.restPhoneContact
+          : this.$cookies.get('userData').telNo
+      this.noteTime = this.registDetail.note
     },
     handleEditTime (startTime, endTime) {
       let arrStart = startTime.split('T')
@@ -334,23 +349,25 @@ export default {
       this.endDate = arrEnd[0]
     },
     loadData () {
-      let typeId = this.$cookies.get('userData').typeId
-      let leadUser = this.$cookies.get('userData').leadUser
+      this.nameContact = this.$cookies.get('userData').fullName
+      this.phoneContact = this.$cookies.get('userData').telNo
+      let userTypeId = this.$cookies.get('userData').userTypeId
+      let leaderId = this.$cookies.get('userData').leaderId
       this.axios
-        .get('/api/RegistTime/GetAllLeader', {
+        .get('/api/RegistTime/GetLeaderByUser', {
           params: {
-            typeId: typeId
+            userTypeID: userTypeId
           }
         })
         .then(res => {
           for (const key in res.data) {
             if (res.data.hasOwnProperty(key)) {
-              if (res.data[key].userId === leadUser) {
-                this.leadSelected = leadUser
+              if (res.data[key].userId === leaderId) {
+                this.leadSelected = leaderId
               }
               this.LeaderSelect.push({
                 value: res.data[key].userId,
-                text: res.data[key].name
+                text: res.data[key].fullName
               })
             }
           }
@@ -362,48 +379,67 @@ export default {
         for (const key in res.data) {
           if (res.data.hasOwnProperty(key)) {
             this.reasonList.push({
-              value: res.data[key].typeId,
-              text: res.data[key].typeName
+              value: res.data[key].typeValue,
+              text: res.data[key].typeValueName
             })
           }
         }
       })
     },
-    validateRequired (name) {
-      if (name != null && name !== '' && name != 0) {
-        return true
-      } else return false
-    },
     sendAxiosTime (requestUrl, data) {
-      this.axios({
-        method: 'post',
-        url: requestUrl,
-        data: data
+      this.$validator.validateAll().then(result => {
+        if (result) {
+          this.axios({
+            method: 'post',
+            url: requestUrl,
+            data: data
+          })
+            .then(res => {
+              if (res.data === false) {
+                this.$swal('Thất bại', 'Vui lòng kiểm tra lại', 'error')
+              } else {
+                this.$emit('changComponent') // dùng sự kiện để gọi hàm refresh ở component cha
+                this.$swal('Ok!', 'Thành công', 'success')
+              }
+            })
+            .catch(err => {
+              console.log('sendAxiosTime -> err', err)
+            })
+        }
       })
-        .then(res => {
-          if (res.data === false) {
-            this.$toastr.error(
-              'Thêm thất bại, vui lòng kiểm tra lại',
-              'Lỗi rồi!'
-            )
-          } else {
-            this.$emit('changComponent') // dùng sự kiện để gọi hàm refresh ở component cha
-            this.$toastr.success('Thêm thành công', 'Ngon lành')
-          }
-        })
-        .catch(err => {})
     },
+
     sendWorkTime () {
-      let data = {
-        Id: this.registDetail.id !== null ? this.registDetail.id : 0,
-        UserId: this.$cookies.get('userData').userId,
-        LeaderId: this.leadSelected,
-        ClassifyTime: this.classifySelected,
-        StartTime: new Date(this.startDate + ',' + this.startTime + ' UTC'),
-        EndTime: new Date(this.endDate + ',' + this.endTime + ' UTC'),
-        Time: this.time,
-        Note: this.noteTime
+      let data = {}
+      if (this.jobTypeSelected === 1) {
+        data = {
+          Id: this.registDetail !== null ? this.registDetail.id : 0,
+          UserId: this.$cookies.get('userData').userId,
+          LeaderId: this.leadSelected,
+          JobType: this.jobTypeSelected,
+          StartDtTm: new Date(this.startDate + ',' + this.startTime + ' UTC'),
+          EndDtTm: new Date(this.endDate + ',' + this.endTime + ' UTC'),
+          TotalTime: this.handleShortTime,
+          Note: this.noteTime
+        }
       }
+      if (this.jobTypeSelected === 2) {
+        data = {
+          Id: this.registDetail !== null ? this.registDetail.id : 0,
+          UserId: this.$cookies.get('userData').userId,
+          LeaderId: this.leadSelected,
+          JobType: this.jobTypeSelected,
+          StartDtTm: new Date(this.startDate + ',' + this.startTime + ' UTC'),
+          EndDtTm: new Date(this.endDate + ',' + this.endTime + ' UTC'),
+          // Khởi tạo ngày tháng rồi cộng 2 chuỗi string ngày với giờ lại
+          RestReasonId: this.reasonSelected,
+          RestNameContact: this.nameContact,
+          RestPhoneContact: this.phoneContact,
+          TotalTime: this.handleLongTime,
+          Note: this.noteTime
+        }
+      }
+
       let requestUrl = ''
       if (this.showPopup === 'regist') {
         requestUrl = '/api/RegistTime/InsertTime'
@@ -411,84 +447,8 @@ export default {
       if (this.showPopup === 'edit') {
         requestUrl = '/api/RegistTime/UpdateRegist'
       }
-      // if (
-      //   this.leadSelected === null ||
-      //   this.classifySelected === null ||
-      //   this.startTime === '' ||
-      //   this.endTime === ''
-      // ) {
-      //   this.$toastr.error(
-      //     'Vui lòng chọn đầy đủ các trường',
-      //     'Xin kiểm tra lại !!!'
-      //   )
-      // } else if (this.handleShortTime === 0) {
-      //   this.$toastr.error(
-      //     'Giờ kết thúc phải lớn hơn giờ bắt đầu',
-      //     'Xin kiểm tra lại !!!'
-      //   )
-      // } else if (this.classifySelected !== 1) {
-      //   if (
-      //     this.reasonSelected === 0 ||
-      //     this.nameContact === '' ||
-      //     this.phoneContact === ''
-      //   ) {
-      //     this.$toastr.error(
-      //       'Vui lòng chọn đầy đủ các trường',
-      //       'Xin kiểm tra lại !!!'
-      //     )
-      //   } else if (this.checkPhone(this.phoneContact) === false) {
-      //     this.$toastr.error(
-      //       'SDT không đúng định dạng',
-      //       'Xin kiểm tra lại !!!'
-      //     )
-      //   } else {
-      //     this.sendAxiosTime(requestUrl, data)
-      //   }
-      // } else {
+
       this.sendAxiosTime(requestUrl, data)
-      // }
-    },
-    sendRestTime () {
-      let data = {
-        Id: this.registDetail.id !== null ? this.registDetail.id : 0,
-        UserId: this.$cookies.get('userData').userId,
-        LeaderId: this.leadSelected,
-        ClassifyTime: this.classifySelected,
-        StartTime: new Date(this.startDate + ',' + this.startTime + ' UTC'),
-        EndTime: new Date(this.endDate + ',' + this.endTime + ' UTC'),
-        // Khởi tạo ngày tháng rồi cộng 2 chuỗi string ngày với giờ lại
-        ReasonId: this.reasonSelected,
-        NameContact: this.nameContact,
-        PhoneContact: this.phoneContact,
-        Time: this.restDate,
-        Note: this.noteTime
-      }
-      let requestUrl = ''
-      if (this.showPopup === 'regist') {
-        requestUrl = '/api/RegistTime/InsertTime'
-      }
-      if (this.showPopup === 'edit') {
-        requestUrl = '/api/RegistTime/UpdateRegist'
-      }
-      if (
-        this.leadSelected === null ||
-        this.classifySelected === null ||
-        this.endDate === ''
-      ) {
-        this.$toastr.error(
-          'Vui lòng chọn đầy đủ các trường',
-          'Xin kiểm tra lại !!!'
-        )
-      } else if (this.handleLongTime === '0') {
-        this.$toastr.error(
-          'Ngày kết thúc phải lớn hơn ngày bắt đầu',
-          'Xin kiểm tra lại !!!'
-        )
-      } else if (this.checkPhone(this.phoneContact) === false) {
-        this.$toastr.error('SDT không đúng định dạng', 'Xin kiểm tra lại !!!')
-      } else {
-        this.sendAxiosTime(requestUrl, data)
-      }
     },
     handleTime (starttime, endtime) {
       let arrStartTime = starttime.split(':')
@@ -506,12 +466,6 @@ export default {
       } else {
         return resultTime
       }
-    },
-    checkPhone (num) {
-      let regex = /(09|01[2|6|8|9])+([0-9]{8})\b/g
-      if (regex.test(num) === false) {
-        return false
-      } else return true
     }
   },
   computed: {
@@ -529,8 +483,8 @@ export default {
       return title
     },
     handleShortTime () {
-      this.time = this.handleTime(this.startTime, this.endTime)
-      return this.time
+      let time = this.handleTime(this.startTime, this.endTime)
+      return time
     },
     handleLongTime () {
       let handleDate =
@@ -539,38 +493,19 @@ export default {
       // khởi tạo ngày bắt đầu và ngày kết thúc
       // sau khi trừ cho nhau thì kết quả trả về miliseconds
       // convert sang thành ngày bằng cách chia cho (1000 * 60 * 60 * 24)
-      this.restDate = handleDate + this.time
-      if (isNaN(this.restDate) || this.restDate < 0) {
+      let restDate = handleDate + this.handleShortTime
+      if (isNaN(restDate) || restDate < 0) {
         return '0'
       } else {
-        return this.restDate
+        return restDate
       }
     }
   }
 }
 </script>
-<style lang="css">
-.ss-title {
-  margin-bottom: 30px;
-  margin-top: 30px;
-}
-.ss-title .title {
-  text-align: center;
-  font-size: 30px;
-}
+<style lang="css" scope>
 .vue__time-picker,
 .vue__time-picker input.display-time {
   width: 100%;
-}
-.vue__time-picker .custom-select.is-invalid {
-  border-color: #dc3545;
-  padding-right: calc(0.75em + 2.3125rem);
-}
-.vue__time-picker .custom-select.is-valid {
-  border-color: #28a745;
-  padding-right: calc(0.75em + 2.3125rem);
-}
-.form-control:disabled {
-  cursor: not-allowed;
 }
 </style>

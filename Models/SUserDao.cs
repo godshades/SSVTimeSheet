@@ -10,9 +10,10 @@ namespace SSVTimeSheet.Models
 {
     public class SUserDao
     {
+        IDbConnection dbConnection = new TimeSheetRepository().Connection;
         public SUser CheckLogin(string UserId, string Password)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string sQuery = @"SELECT * , (SELECT TypeValueName FROM dbo.SType t WHERE u.UserTypeId = t.TypeValue AND t.TypeCd = '2') AS [UserTypeName] FROM dbo.SUser u WHERE UserId= @UserId AND Password=@Password";
                 dbConnection.Open();
@@ -33,7 +34,7 @@ namespace SSVTimeSheet.Models
         }
         public List<SUser> GetLeaderByUser(int typeId)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 int leadId = 0;
                 if (typeId == 2 || typeId == 1 || typeId == 3)
@@ -57,7 +58,7 @@ namespace SSVTimeSheet.Models
         }
         public List<SUser> GetAllUser()
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string sQuery = @"SELECT *,(SELECT FullName FROM dbo.SUser s WHERE u.LeaderId = s.UserId) AS [LeaderName],(SELECT TypeValueName FROM dbo.SType t WHERE u.UserTypeId = t.TypeValue AND t.TypeCd = '2') AS [UserTypeName] FROM [SSVTimeSheet].[dbo].[SUser] u WHERE u.DelFlg = 'false'";
                 dbConnection.Open();
@@ -74,7 +75,7 @@ namespace SSVTimeSheet.Models
         }
         public bool DeleteUser(string userId)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string sQuery = @"UPDATE dbo.SUser SET DelFlg = 'true' WHERE UserId = @UserId";
                 dbConnection.Open();
@@ -91,7 +92,7 @@ namespace SSVTimeSheet.Models
         }
         public List<SUser> GetAllLeader()
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string sQuery = @"SELECT [UserId], [FullName] FROM dbo.SUser WHERE [UserTypeId] = '4' OR [UserTypeId] = '5' OR [UserTypeId] = '6'";
                 dbConnection.Open();
@@ -108,7 +109,7 @@ namespace SSVTimeSheet.Models
         }
         public List<SType> GetAllUserType()
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string sQuery = @"SELECT * FROM dbo.SType WHERE TypeCd ='2'";
                 dbConnection.Open();
@@ -125,7 +126,7 @@ namespace SSVTimeSheet.Models
         }
         public SUser GetUserById(string userId)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string sQuery = @"SELECT *,(SELECT FullName FROM dbo.SUser s WHERE u.LeaderId = s.UserId) AS [LeaderName],(SELECT TypeValueName FROM dbo.SType t WHERE u.UserTypeId = t.TypeValue AND t.TypeCd = '2') AS [UserTypeName] FROM [SSVTimeSheet].[dbo].[SUser] u WHERE UserId = @UserId";
                 dbConnection.Open();
@@ -143,7 +144,7 @@ namespace SSVTimeSheet.Models
         }
         public int AddUser(SUser data)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string checkQuery = @"SELECT COUNT(*) FROM dbo.SUser WHERE UserId = @UserId";
                 string sQuery = @"INSERT INTO dbo.SUser( UserId ,[Password] ,FullName ,LeaderId ,UserTypeId ,JoinDt ,BirthDt ,Email ,TelNo ,RestDay ,DelFlg)VALUES  ( @UserId ,@Password ,@FullName ,@LeaderId ,@UserTypeId ,@JoinDt ,@BirthDt ,@Email ,@TelNo ,@RestDay ,@DelFlg) ";
@@ -173,7 +174,7 @@ namespace SSVTimeSheet.Models
         }
         public bool EditUser(SUser data)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
 
                 string sQuery = @"UPDATE dbo.SUser SET FullName = @FullName , LeaderId = @LeaderId, UserTypeId = @UserTypeId, JoinDt = @JoinDt,BirthDt = @BirthDt, Email = @Email, TelNo = @TelNo, RestDay = @RestDay WHERE UserId = @UserId";
@@ -195,7 +196,7 @@ namespace SSVTimeSheet.Models
         /// <returns>bool</returns>
         public bool UpdateUser(SUser data)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
 
                 string sQuery = @"UPDATE dbo.SUser SET FullName = @FullName ,BirthDt = @BirthDt, Email = @Email, TelNo = @TelNo WHERE UserId = @UserId";

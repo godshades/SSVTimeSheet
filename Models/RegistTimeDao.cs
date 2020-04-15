@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 namespace SSVTimeSheet.Models
 {
     public class RegistTimeDao
-    {
+    {       
+        IDbConnection dbConnection = new TimeSheetRepository().Connection;
         public bool SaveTime(RegistTime data)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 try
                 {
@@ -34,7 +35,7 @@ namespace SSVTimeSheet.Models
         }
         public List<RegistTime> GetTimeByUserId(string userId)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string sQuery = @"SELECT * FROM dbo.SWorkTime WHERE UserId = @UserId";
                 dbConnection.Open();                
@@ -52,7 +53,7 @@ namespace SSVTimeSheet.Models
         }
         public List<RegistTime> GetRequirementTime(string leaderId, int status)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string sQuery = "";
                 if (status == 1)
@@ -83,7 +84,7 @@ namespace SSVTimeSheet.Models
         }
         public RegistTime GetRegistDetail(int registId)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string sub1 = ",(select T.TypeValueName from dbo.SType as T where T.TypeValue = R.RestReasonId and TypeCd = '3')  as RestReasonName";
                 string sub2 = ",(select T.TypeValueName from dbo.SType as T where T.TypeValue = R.JobType and TypeCd = '1') as JobTypeName";
@@ -104,7 +105,7 @@ namespace SSVTimeSheet.Models
         }
         public bool ApproveTime(int id, int status)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string sQuery = @"UPDATE dbo.SWorkTime SET [Status] = @Status WHERE Id = @Id";
                 dbConnection.Open();
@@ -122,7 +123,7 @@ namespace SSVTimeSheet.Models
         public int SttApprove(string leaderId, int sttapprove)
         {
 
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string sQuery = "";
                 if (sttapprove == 1)
@@ -151,7 +152,7 @@ namespace SSVTimeSheet.Models
         }
         public List<SType> GetReason()
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
 
                 string sQuery = @"SELECT [TypeValue],[TypeValueName] FROM [dbo].[SType] Where TypeCd = 3";
@@ -170,7 +171,7 @@ namespace SSVTimeSheet.Models
         }
         public bool UpdateRegist(RegistTime data)
         {
-            using (IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using (dbConnection)
             {
                 string sQuery = @"UPDATE dbo.SWorkTime SET UserId = @UserId, LeaderId = @LeaderId, JobType = @JobType, StartDtTm = @StartDtTm, EndDtTm = @EndDtTm, [TotalTime] = @TotalTime ,RestReasonId = @RestReasonId, RestNameContact = @RestNameContact ,RestPhoneContact = @RestPhoneContact, Note = @Note, [Status] = @Status WHERE Id = @Id";
                 dbConnection.Open();
@@ -189,7 +190,7 @@ namespace SSVTimeSheet.Models
         }
         public bool DeleteTime(int id)
         {
-            using(IDbConnection dbConnection = new TimeSheetRepository().Connection)
+            using(dbConnection)
             {
                 string sQuery = @"DELETE FROM dbo.SWorkTime WHERE Id = @id";
                 dbConnection.Open();

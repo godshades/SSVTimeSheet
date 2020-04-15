@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SSVTimeSheet.Models;
+using GoogleCalendarAPI.Models;
 
 namespace SSVTimeSheet.Controllers
 {
@@ -18,6 +19,10 @@ namespace SSVTimeSheet.Controllers
         public JsonResult InsertWorkTime(RegistTime data)
         {
             bool result = new RegistTimeDao().SaveTime(data);
+            if (result)
+            {
+                new GoogleCalendar().CreateEvent();
+            }
             return Json(result);
         }        
         [HttpGet("GetTimeUser")]

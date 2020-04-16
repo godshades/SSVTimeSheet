@@ -6,87 +6,149 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Web.Mvc;
 
 namespace GoogleCalendarAPI.Models
 {
+    public class TimeSheetEvent
+    {
+        public string id { get; set; }
+        public string text { get; set; }
+        public string description { get; set; }
+        public DateTime start_date { get; set; }
+        public DateTime end_date { get; set; }
+
+        // Additional fields
+
+        public DateTime Created { get; set; }
+        public DateTime Updated { get; set; }
+    }
     public class GoogleCalendar
     {
-        static string jsonFile = "credentials.json";
-        static string calendarId = @"quangquyen1410@gmail.com";
+        static string CalendarId = "quangquyen1410@gmail.com";
 
-        static string[] Scopes = { CalendarService.Scope.Calendar };
-        public ServiceAccountCredential credential;
-        public GoogleCalendar()
+        ServiceAccountCredential GetCredential()
         {
-            using (var stream = new FileStream(jsonFile, FileMode.Open, FileAccess.Read))
+            try
             {
-                var confg = Google.Apis.Json.NewtonsoftJsonSerializer.Instance.Deserialize<JsonCredentialParameters>(stream);
-                credential = new ServiceAccountCredential(
-                   new ServiceAccountCredential.Initializer(confg.ClientEmail)
-                   {
-                       Scopes = Scopes
-                   }.FromPrivateKey(confg.PrivateKey));
+                var certificate = new X509Certificate2(
+            "ssvtimesheet-274402-0ca208f6e780.p12",
+            "notasecret",
+             X509KeyStorageFlags.Exportable);
+
+                ServiceAccountCredential credential = new ServiceAccountCredential(
+                new ServiceAccountCredential.Initializer("ssvtimesheet@ssvtimesheet-274402.iam.gserviceaccount.com")
+                {
+                    Scopes = new[] { CalendarService.Scope.Calendar }
+                }.FromCertificate(certificate));
+
+                return credential;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
-
-        public CalendarService GetService()
+        CalendarService Get()
         {
-            var service = new CalendarService(new BaseClientService.Initializer()
+            try
             {
-                HttpClientInitializer = credential,
-                ApplicationName = "SSVTimeSheet",
-            });
-            return service;
+                var credential = GetCredential();
+                var service = new CalendarService(new BaseClientService.Initializer()
+                {
+                    HttpClientInitializer = credential,
+                    ApplicationName = "SSVTimeSheet"
+                });
+
+                return service;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
-        public void CreateEvent()
+        /// <summary>
+        /// Creates a new event 
+        /// for more information see https://developers.google.com/google-apps/calendar/v3/reference/events/insert
+        /// </summary>
+        /// <param name="gEvent">Google event object</param>
+        /// <returns></returns>
+        public string CreateEvent(TimeSheetEvent gEvent)
         {
-            CalendarService service = GetService();
-            var myevent = DB.Find(x => x.Id == "eventid" + 1);
-
-            var InsertRequest = service.Events.Insert(myevent, calendarId);
-
             //try
             //{
-            InsertRequest.Execute();
+                using (var service = Get())
+                {                    
+                    var inserted = service.Events.Insert(new Event
+                    {
+                        Id = gEvent.id,
+                        Description = gEvent.description,
+                        Summary = gEvent.text,
+                        Created = gEvent.Created,
+                        Updated = gEvent.Updated,
+                        Start = new EventDateTime { DateTime = gEvent.start_date },
+                        End = new EventDateTime { DateTime = gEvent.end_date }
+                    }, CalendarId).Execute();
+                    return inserted.Id;
+                }
             //}
             //catch (Exception)
             //{
-            //    try
-            //    {
-            //        service.Events.Update(myevent, calendarId, myevent.Id).Execute();
-
-            //    }
-            //    catch (Exception)
-            //    {
-
-            //    }
+            //    return string.Empty;
             //}
         }
-
-        public static List<Event> DB =
-             new List<Event>() {
-                new Event(){
-                    Id = "eventid" + 1,
-                    Summary = "Google I/O 2015",
-                    Location = "800 Howard St., San Francisco, CA 94103",
-                    Description = "A chance to hear more about Google's developer products.",
-                    Start = new EventDateTime()
+        /// <summary>
+        /// Updates event in the calendar with the identifier CalendarId
+        /// for more information see https://developers.google.com/google-apps/calendar/v3/reference/events/update
+        /// </summary>
+        /// <param name="gEvent">Google event object</param>
+        /// <returns></returns>
+        public string UpdateEvent(TimeSheetEvent gEvent)
+        {
+            try
+            {
+                using (var service = Get())
+                {
+                    var toUpdate = service.Events.Get(CalendarId, gEvent.id).Execute();
+                    toUpdate.Description = gEvent.description;
+                    toUpdate.Summary = gEvent.text;
+                    toUpdate.Created = gEvent.Created;
+                    toUpdate.Updated = gEvent.Updated;
+                    toUpdate.Start = new EventDateTime
                     {
-                        DateTime = new DateTime(2020, 04, 15, 15, 30, 0),
-                        TimeZone = "America/Los_Angeles",
-                    },
-                    End = new EventDateTime()
+                        DateTime = gEvent.start_date
+                    };
+                    toUpdate.End = new EventDateTime
                     {
-                        DateTime = new DateTime(2020, 04, 16, 15, 30, 0),
-                        TimeZone = "America/Los_Angeles",
-                    },
-                    Attendees = new List<EventAttendee>
-                    {
-                        new EventAttendee() { Email = "quangquyen1410@gmail.com"},
-                        new EventAttendee() { Email = "quangquyen1410@gmail.com"}
-                    }
+                        DateTime = gEvent.end_date
+                    };
+                    var result = service.Events.Update(toUpdate, CalendarId, toUpdate.Id).Execute();
+                    return result.Id;
                 }
-             };
-
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+        }
+        /// <summary>
+        /// Deletes event by eventId from the calendar with CalendarId
+        /// for more information see https://developers.google.com/google-apps/calendar/v3/reference/events/delete
+        /// </summary>
+        /// <param name="eventId">Identifier of the event</param>
+        public void DeleteEvent(string eventId)
+        {
+            try
+            {
+                using (var service = Get())
+                {
+                    service.Events.Delete(CalendarId, eventId).Execute();
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }        
     }
 }

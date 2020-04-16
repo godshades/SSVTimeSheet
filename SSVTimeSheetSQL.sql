@@ -70,3 +70,35 @@ INSERT INTO dbo.SUser( UserId ,[Password] ,FullName ,LeaderId ,UserTypeId ,JoinD
 
 
 	SELECT COUNT(*) FROM dbo.SUser WHERE UserId = 'VN0001'
+	INSERT INTO dbo.SWorkTime
+	        ( UserId ,
+	          JobType ,
+	          StartDtTm ,
+	          EndDtTm ,
+	          LeaderId ,
+	          IsHoliday ,
+	          IsWeekend ,
+	          RestReasonId ,
+	          RestNameContact ,
+	          RestPhoneContact ,
+	          TotalTime ,
+	          Note ,
+	          InsertDt ,
+	          Status
+	        )
+			OUTPUT Inserted.Id
+	VALUES  ( 'VN0050' , -- UserId - char(6)
+	          1 , -- JobType - tinyint
+	          GETDATE() , -- StartDtTm - datetime
+	          GETDATE() , -- EndDtTm - datetime
+	          'VN0020' , -- LeaderId - char(6)
+	          NULL , -- IsHoliday - bit
+	          NULL , -- IsWeekend - bit
+	          1 , -- RestReasonId - tinyint
+	          N'QUy?n' , -- RestNameContact - nvarchar(30)
+	          '0966304660' , -- RestPhoneContact - char(10)
+	          1.0 , -- TotalTime - float
+	          N'Không' , -- Note - nvarchar(100)
+	          GETDATE() , -- InsertDt - datetime
+	          0  -- Status - tinyint
+	        )

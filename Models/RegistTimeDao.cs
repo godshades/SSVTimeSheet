@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using GoogleCalendarAPI.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,25 +10,36 @@ using System.Threading.Tasks;
 namespace SSVTimeSheet.Models
 {
     public class RegistTimeDao
-    {       
+    {
         IDbConnection dbConnection = new TimeSheetRepository().Connection;
         public bool SaveTime(RegistTime data)
         {
             using (dbConnection)
             {
-                try
-                {
-                    string sQuery = @"INSERT INTO dbo.SWorkTime( UserId ,JobType ,StartDtTm ,EndDtTm ,LeaderId ,RestReasonId ,RestNameContact ,RestPhoneContact ,TotalTime ,Note ,InsertDt ,[Status]) VALUES  (@UserId ,@JobType ,@StartDtTm ,@EndDtTm ,@LeaderId ,@RestReasonId ,@RestNameContact ,@RestPhoneContact ,@TotalTime ,@Note ,@InsertDt ,@Status)";
+                //try
+                //{
+                    string sQuery = @"INSERT INTO dbo.SWorkTime( UserId ,JobType ,StartDtTm ,EndDtTm ,LeaderId ,RestReasonId ,RestNameContact ,RestPhoneContact ,TotalTime ,Note ,InsertDt ,[Status]) OUTPUT Inserted.Id VALUES  (@UserId ,@JobType ,@StartDtTm ,@EndDtTm ,@LeaderId ,@RestReasonId ,@RestNameContact ,@RestPhoneContact ,@TotalTime ,@Note ,@InsertDt ,@Status)";
                     dbConnection.Open();
-                    data.InsertDt = DateTime.Now;
-                    data.Status = 1;
-                    dbConnection.Execute(sQuery, data);
+                    int Id = dbConnection.QuerySingle<int>(sQuery, data);
+                    if (Id != 0)
+                    {
+                        TimeSheetEvent gEvent = new TimeSheetEvent();
+                        gEvent.id = "ssvtime" + Id.ToString();
+                        gEvent.text = data.JobType == 1 ? "Làm thêm": "Xin nghỉ" ;
+                        gEvent.description = data.Note;
+                        gEvent.Created = data.InsertDt;
+                        gEvent.start_date = data.StartDtTm;
+                        gEvent.end_date = data.EndDtTm;
+                        string temp = new GoogleCalendar().CreateEvent(gEvent);
+                    
+                    }
+
                     return true;
-                }
-                catch
-                {
-                    return false;
-                }
+                //}
+                //catch
+                //{
+                //    return false;
+                //}
             }
 
 
@@ -38,7 +50,7 @@ namespace SSVTimeSheet.Models
             using (dbConnection)
             {
                 string sQuery = @"SELECT * FROM dbo.SWorkTime WHERE UserId = @UserId";
-                dbConnection.Open();                
+                dbConnection.Open();
                 try
                 {
                     List<RegistTime> GetAll = dbConnection.Query<RegistTime>(sQuery, new { userId = userId }).ToList();
@@ -147,7 +159,7 @@ namespace SSVTimeSheet.Models
 
                     return 0;
                 }
-                
+
             }
         }
         public List<SType> GetReason()
@@ -156,7 +168,7 @@ namespace SSVTimeSheet.Models
             {
 
                 string sQuery = @"SELECT [TypeValue],[TypeValueName] FROM [dbo].[SType] Where TypeCd = 3";
-                dbConnection.Open();                 
+                dbConnection.Open();
                 try
                 {
                     List<SType> reason = dbConnection.Query<SType>(sQuery).ToList();
@@ -180,6 +192,14 @@ namespace SSVTimeSheet.Models
                     data.Status = 1;
 
                     dbConnection.ExecuteScalar<RegistTime>(sQuery, data);
+                    TimeSheetEvent gEvent = new TimeSheetEvent();
+                    gEvent.id = "ssvtime" + data.Id.ToString();
+                    gEvent.text = data.JobType == 1 ? "Làm thêm" : "Xin nghỉ";
+                    gEvent.description = data.Note;
+                    gEvent.Updated = DateTime.Now;
+                    gEvent.start_date = data.StartDtTm;
+                    gEvent.end_date = data.EndDtTm;
+                    new GoogleCalendar().UpdateEvent(gEvent);
                     return true;
                 }
                 catch
@@ -190,13 +210,15 @@ namespace SSVTimeSheet.Models
         }
         public bool DeleteTime(int id)
         {
-            using(dbConnection)
+            using (dbConnection)
             {
                 string sQuery = @"DELETE FROM dbo.SWorkTime WHERE Id = @id";
                 dbConnection.Open();
                 try
                 {
                     dbConnection.Execute(sQuery, new { id = id });
+                    string eventId = "ssvtime" + id.ToString();
+                    new GoogleCalendar().DeleteEvent(eventId);
                     return true;
                 }
                 catch

@@ -18,11 +18,9 @@ namespace SSVTimeSheet.Controllers
         [HttpPost("InsertTime")]
         public JsonResult InsertWorkTime(RegistTime data)
         {
-            bool result = new RegistTimeDao().SaveTime(data);
-            if (result)
-            {
-                new GoogleCalendar().CreateEvent();
-            }
+            data.InsertDt = DateTime.Now;
+            data.Status = 1;
+            bool result = new RegistTimeDao().SaveTime(data);           
             return Json(result);
         }        
         [HttpGet("GetTimeUser")]
@@ -71,12 +69,13 @@ namespace SSVTimeSheet.Controllers
         public JsonResult UpdateRegist(RegistTime data)
         {
             bool result = new RegistTimeDao().UpdateRegist(data);
+            
             return Json(data);
         }
         [HttpDelete("DeleteTime")]
         public JsonResult DeleteTime(int id)
         {
-            bool result = new RegistTimeDao().DeleteTime(id);
+            bool result = new RegistTimeDao().DeleteTime(id);            
             return Json(result);
         }
     }

@@ -26,19 +26,19 @@ namespace GoogleCalendarAPI.Models
     }
     public class GoogleCalendar
     {
-        static string CalendarId = "quangquyen1410@gmail.com";
+        static string CalendarId = "nghiepdocntt1k58utc@gmail.com";
 
         ServiceAccountCredential GetCredential()
         {
             try
             {
                 var certificate = new X509Certificate2(
-            "ssvtimesheet-274402-0ca208f6e780.p12",
+            "ssvtimesheet-277509-ea53330344b6.p12",
             "notasecret",
              X509KeyStorageFlags.Exportable);
 
                 ServiceAccountCredential credential = new ServiceAccountCredential(
-                new ServiceAccountCredential.Initializer("ssvtimesheet@ssvtimesheet-274402.iam.gserviceaccount.com")
+                new ServiceAccountCredential.Initializer("ssvtimesheet@ssvtimesheet-277509.iam.gserviceaccount.com")
                 {
                     Scopes = new[] { CalendarService.Scope.Calendar }
                 }.FromCertificate(certificate));
@@ -78,20 +78,20 @@ namespace GoogleCalendarAPI.Models
         {
             //try
             //{
-                using (var service = Get())
-                {                    
-                    var inserted = service.Events.Insert(new Event
-                    {
-                        Id = gEvent.id,
-                        Description = gEvent.description,
-                        Summary = gEvent.text,
-                        Created = gEvent.Created,
-                        Updated = gEvent.Updated,
-                        Start = new EventDateTime { DateTime = gEvent.start_date },
-                        End = new EventDateTime { DateTime = gEvent.end_date }
-                    }, CalendarId).Execute();
-                    return inserted.Id;
-                }
+            using (var service = Get())
+            {
+                var inserted = service.Events.Insert(new Event
+                {
+                    Id = gEvent.id,
+                    Description = gEvent.description,
+                    Summary = gEvent.text,
+                    Created = gEvent.Created,
+                    Updated = gEvent.Updated,
+                    Start = new EventDateTime { DateTimeRaw = gEvent.start_date.ToString("yyyy-MM-ddTHH:mm:ss"), TimeZone = "+07:00" },
+                    End = new EventDateTime { DateTimeRaw = gEvent.end_date.ToString("yyyy-MM-ddTHH:mm:ss"), TimeZone = "+07:00" }
+                }, CalendarId).Execute();
+                return inserted.Id;
+            }
             //}
             //catch (Exception)
             //{
@@ -115,14 +115,8 @@ namespace GoogleCalendarAPI.Models
                     toUpdate.Summary = gEvent.text;
                     toUpdate.Created = gEvent.Created;
                     toUpdate.Updated = gEvent.Updated;
-                    toUpdate.Start = new EventDateTime
-                    {
-                        DateTime = gEvent.start_date
-                    };
-                    toUpdate.End = new EventDateTime
-                    {
-                        DateTime = gEvent.end_date
-                    };
+                    toUpdate.Start = new EventDateTime { DateTimeRaw = gEvent.start_date.ToString("yyyy-MM-ddTHH:mm:ss"), TimeZone = "+07:00" };
+                    toUpdate.End = new EventDateTime { DateTimeRaw = gEvent.end_date.ToString("yyyy-MM-ddTHH:mm:ss"), TimeZone = "+07:00" };
                     var result = service.Events.Update(toUpdate, CalendarId, toUpdate.Id).Execute();
                     return result.Id;
                 }
@@ -149,6 +143,6 @@ namespace GoogleCalendarAPI.Models
             catch (Exception)
             {
             }
-        }        
+        }
     }
 }
